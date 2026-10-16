@@ -35,7 +35,7 @@ header [data-tip]:hover::after,#s-albums [data-tip]:hover::after{top:calc(100% +
 .viewer.idle .vbar,.viewer.idle .vctrl{opacity:0;pointer-events:none}
 .cbtn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:99px;min-width:48px;min-height:48px;font-size:18px;cursor:pointer}
 .cbtn:hover{background:rgba(255,255,255,.32);transform:scale(1.08)}
-.mini{border:0;background:transparent;color:var(--mut);font-size:15px;font-weight:800;padding:4px 8px;cursor:pointer;border-radius:8px;min-height:32px}
+.mini{border:0;background:transparent;color:var(--mut);font-size:13px;font-weight:800;padding:2px 6px;cursor:pointer;border-radius:8px;min-height:26px}
 .mini:hover{color:var(--ink);background:var(--line)}
 .thumbx{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:50%;border:2px solid var(--ink);background:var(--card);color:var(--ink);font-size:18px;font-weight:800;cursor:pointer;line-height:1;z-index:2}
 .thumbx.armed{background:var(--acc);color:#fff;border-color:var(--acc)}
@@ -90,7 +90,7 @@ textarea{width:100%;min-height:90px}
 <div class="vbar"><span id="vtitle"></span><span><button class="cbtn" onclick="fullV()" data-tip="Fullscreen">⛶</button></span></div>
 <div class="vctrl" id="vctrl"><button class="cbtn" onclick="step(-1)">◀</button><button class="cbtn" id="playB" data-tip="Play / pause" onclick="toggleP()">▶</button><button class="cbtn" onclick="step(1)">▶</button><span class="dockseg" id="ovseg">Size <button data-s="small" onclick="vsize('small')">S</button><button data-s="medium" onclick="vsize('medium')">M</button><button data-s="large" onclick="vsize('large')">L</button></span></div></div>
 <!-- owner sizes live in the control dock, mirroring the public view -->
-<div class="caption" id="capbox"><div class="comment" id="cap"></div><div class="exif" id="ex"></div><span style="float:right;margin-top:8px"><button class="mini" onclick="capZoom(-0.1)" data-tip="Smaller text">A−</button> <button class="mini" onclick="capZoom(0.1)" data-tip="Larger text">A+</button></span><div style="clear:both"></div></div>
+<div class="caption" id="capbox"><div class="comment" id="cap"></div><div class="exif" id="ex"></div></div>
 <div class="set"><b>Edit this photo's comment</b><textarea id="cedit" placeholder="Multiline comment for the currently shown photo…"></textarea>
 <p></p><button class="btn primary" onclick="saveComment()">💾 Save comment</button> <button class="btn" id="delPhotoBtn" onclick="delCurrent(this)">Delete this photo</button> <span class="mut" id="cmsg"></span></div>
 <div class="grid" id="thumbs" style="margin-top:12px"></div></section>
@@ -101,7 +101,7 @@ textarea{width:100%;min-height:90px}
 <div class="vbar"><span id="ptitle"></span><button class="cbtn" onclick="document.getElementById('pviewer').requestFullscreen()">⛶</button></div>
 <div class="vctrl"><button class="cbtn" onclick="pstep(-1)">◀</button><button class="cbtn" id="ppBtn" data-tip="Play / pause" onclick="ptoggle()">▶</button><button class="cbtn" onclick="pstep(1)">▶</button><span class="dockseg" id="pvseg">Size <button data-s="small" onclick="psize('small')">S</button><button data-s="medium" onclick="psize('medium')">M</button><button data-s="large" onclick="psize('large')">L</button></span></div></div>
 <!-- public sizes live in the control dock (prototype B winner, branch prototype/public-sizes) -->
-<div class="caption" id="pcapbox"><div class="comment" id="pcap"></div><div class="exif" id="pex"></div><span style="float:right;margin-top:8px"><button class="mini" onclick="capZoom(-0.1)" data-tip="Smaller text">A−</button> <button class="mini" onclick="capZoom(0.1)" data-tip="Larger text">A+</button></span><div style="clear:both"></div></div>
+<div class="caption" id="pcapbox"><div class="comment" id="pcap"></div><div class="exif" id="pex"></div></div>
 <p class="mut">Readonly public link • Made with Memorees 💛</p></section>
 
 <section id="s-settings" class="screen"><div class="card"><div class="pad">
@@ -157,7 +157,7 @@ function paint(){if(!PH.length){$('slide').style.display='none';$('noview').styl
  const p=PH[I];const tr=$('atrans').value;const el=$('slide');el.src=p.src;el.className='slide '+(tr==='slide'?'sl':tr==='zoom'?'zm':tr==='none'?'':'fade');void el.offsetWidth;
  $('vtitle').textContent=`${$('atitle').textContent} • ${I+1}/${PH.length}`;
  $('cap').textContent=p.comment||'(no comment yet — write one below)';if(paint._i!==I){$('cedit').value=p.comment||'';paint._i=I}
- $('ex').innerHTML=exPills(p.exif||{});$('capbox').className='caption '+F[$('afont').value||'hand'];applyCapZoom();
+ $('ex').innerHTML=exPills(p.exif||{})+zoomHtml();$('capbox').className='caption '+F[$('afont').value||'hand'];applyCapZoom();
  $('playB').textContent=T?'⏸':'▶'}
 function step(d){if(!PH.length)return;I=(I+d+PH.length)%PH.length;paint()}
 function jump(i){I=i;paint()}
@@ -167,6 +167,7 @@ function vsize(s){if(!VSIZE_CLS[s])s='medium';try{localStorage.vsize=s}catch(e){
 function fullV(){const v=$('viewer');document.fullscreenElement?document.exitFullscreen():v.requestFullscreen()}
 async function doUpload(){const fs=$('files').files;if(!fs.length)return alert('Pick files first');const fd=new FormData();for(const f of fs)fd.append('files',f);
  const r=await api(`/api/albums/${AID}/photos`,{method:'POST',body:fd});alert(`Uploaded ${r.uploaded}`);openAlbum(AID)}
+function zoomHtml(){return `<span style="margin-left:auto;white-space:nowrap"><button class="mini" onclick="capZoom(-0.1)" data-tip="Smaller text">A−</button> <button class="mini" onclick="capZoom(0.1)" data-tip="Larger text">A+</button></span>`}
 function capZoom(d){let z=+(parseFloat(localStorage.capz||'1')||1);z=Math.min(1.5,Math.max(0.8,+(z+d).toFixed(1)));try{localStorage.capz=z}catch(e){}applyCapZoom()}
 function applyCapZoom(){const z=parseFloat(localStorage.capz||'1')||1;document.documentElement.style.setProperty('--capz',z);const base={'font-hand':22,'font-sans':16,'font-serif':18};['capbox','pcapbox'].forEach(bid=>{const box=$(bid);if(!box)return;const cls=(box.className.split(' ').find(c=>c.indexOf('font-')===0)||'font-sans');const com=box.querySelector('.comment');if(com)com.style.fontSize=(base[cls]*z)+'px'})}
 async function delPhoto(pid,btn){if(!btn.dataset.armed){btn.dataset.armed='1';btn.textContent='?';btn.classList.add('armed');setTimeout(()=>{if(btn.isConnected){btn.dataset.armed='';btn.textContent='×';btn.classList.remove('armed')}},3000);return}await api(`/api/photos/${pid}`,{method:'DELETE'});openAlbum(AID)}
@@ -180,7 +181,7 @@ async function pub(id){show('public');const d=await api('/api/p/'+id);PP=d.photo
  $('ptitle').textContent=`${d.album} • by ${d.author}`;{let ps='medium';try{ps=localStorage.psize||'medium'}catch(e){}ps={full:'large',large:'medium',small:'small'}[ps]||ps;psize(ps)}ppaint();
  $('pcapbox').className='caption '+(F[d.font]||'font-hand')}
 function ppaint(){if(!PP.length){$('pslide').style.display='none';$('pnoview').style.display='grid';$('pcap').textContent='Empty album.';return}$('pslide').style.display='';$('pnoview').style.display='none';const p=PP[PI];const el=$('pslide');el.src=p.src;el.className='slide fade';void el.offsetWidth;
- $('pcap').textContent=p.comment||'';$('pex').innerHTML=exPills(p.exif||{});applyCapZoom();$('ppBtn').textContent=PT?'⏸':'▶'}
+ $('pcap').textContent=p.comment||'';$('pex').innerHTML=exPills(p.exif||{})+zoomHtml();applyCapZoom();$('ppBtn').textContent=PT?'⏸':'▶'}
 function pstep(d){PI=(PI+d+PP.length)%PP.length;ppaint()}
 /* psize lives with ptoggle above (with size memory) */
 function ptoggle(){if(PT){clearInterval(PT);PT=null;$('ppBtn').textContent='▶'}else{PT=setInterval(()=>pstep(1),5000);$('ppBtn').textContent='⏸'}}

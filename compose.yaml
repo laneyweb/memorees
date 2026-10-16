@@ -1,7 +1,7 @@
 services:
   memorees:
     build: .
-    image: memorees:0.1.3
+    image: memorees:0.1.4
     container_name: memorees
     ports:
       - "${HOST_PORT:-8000}:8000"
