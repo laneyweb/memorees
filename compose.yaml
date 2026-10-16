@@ -1,0 +1,15 @@
+services:
+  memorees:
+    build: .
+    image: memorees:0.1.0
+    container_name: memorees
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/data
+    environment:
+      ALLOW_SIGNUP: "true"       # set to "false" to lock registration
+      BASE_URL: "http://localhost:8000"  # used to build public share links
+      BUILD_HASH: "${BUILD_HASH:-dev}"
+      BUILD_DATE: "${BUILD_DATE:-unknown}"
+    restart: unless-stopped

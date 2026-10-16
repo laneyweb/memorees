@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Memorees 📸</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Inter:wght@400;600;800&family=Lora:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff8f0;--card:#fff;--ink:#2b2118;--mut:#8a7a6d;--acc:#ff5d5d;--line:#f0e2d3;--sh:0 8px 30px rgba(0,0,0,.08)}
+[data-theme="dark"]{--bg:#171310;--card:#221c17;--ink:#f5e9dc;--mut:#a89888;--acc:#ff7a7a;--line:#3a2f26;--sh:0 8px 30px rgba(0,0,0,.5)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif}
+header{position:sticky;top:0;z-index:10;display:flex;gap:10px;align-items:center;padding:12px 18px;background:var(--card);border-bottom:2px solid var(--line);flex-wrap:wrap}
+.logo{font-weight:800;font-size:22px}.logo span{color:var(--acc)}
+.btn{border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:12px;padding:8px 14px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;min-height:44px}
+.btn:hover{transform:translateY(-2px);box-shadow:var(--sh)}.btn.primary{background:var(--ink);color:var(--bg)}.btn.on{background:var(--ink);color:var(--bg)}
+input,select,textarea{background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:10px;font-size:15px}
+.wrap{max-width:1000px;margin:0 auto;padding:18px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.card{background:var(--card);border:2px solid var(--line);border-radius:18px;overflow:hidden;transition:transform .18s,box-shadow .18s}
+.card:hover{transform:translateY(-4px);box-shadow:var(--sh)}
+.card img{width:100%;height:180px;object-fit:cover;display:block}
+.polaroid{transform:rotate(-1.2deg)}.polaroid:nth-child(even){transform:rotate(1.2deg)}.polaroid:hover{transform:rotate(0) scale(1.02)}
+.pad{padding:12px}.mut{color:var(--mut);font-size:13px}
+[data-tip]{position:relative}[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);background:var(--ink);color:var(--bg);font-size:12px;padding:6px 10px;border-radius:8px;white-space:nowrap;z-index:5}
+.viewer{background:#000;color:#fff;border-radius:18px;overflow:hidden;position:relative;border:3px solid var(--ink);touch-action:pan-y}
+.viewer img.slide{width:100%;height:380px;object-fit:cover;display:block}
+.viewer.small img.slide{height:220px}.viewer.full img.slide{height:70vh}
+.viewer img.fade{animation:fd 1s}.viewer img.sl{animation:sl .6s}.viewer img.zm{animation:zm 3s}
+@keyframes fd{from{opacity:0}to{opacity:1}}@keyframes sl{from{opacity:0;transform:translateX(60px)}to{opacity:1}}@keyframes zm{from{transform:scale(1.12)}to{transform:scale(1)}}
+.vbar{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:linear-gradient(rgba(0,0,0,.6),transparent);font-size:14px;gap:8px;flex-wrap:wrap}
+.vctrl{position:absolute;bottom:0;left:0;right:0;display:flex;gap:10px;justify-content:center;align-items:center;padding:12px;background:linear-gradient(transparent,rgba(0,0,0,.78));flex-wrap:wrap}
+.cbtn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:99px;min-width:48px;min-height:48px;font-size:18px;cursor:pointer}
+.cbtn:hover{background:rgba(255,255,255,.32);transform:scale(1.08)}
+.caption{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px;margin-top:12px}
+.comment{white-space:pre-line;line-height:1.5}
+.exif{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.pill{font-size:11px;border:1px solid var(--line);border-radius:99px;padding:3px 9px;background:var(--bg)}
+.set{background:var(--card);border:2px dashed var(--acc);border-radius:16px;padding:16px;margin-top:16px}
+.font-hand{font-family:Caveat,cursive;font-size:22px}.font-sans{font-family:Inter,sans-serif}.font-serif{font-family:Lora,serif;font-size:18px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.screen{display:none}.screen.on{display:block;animation:fd .3s}
+@media(max-width:1024px){.viewer img.slide{height:300px}.g3{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}}
+@media(max-width:700px){.grid{grid-template-columns:1fr 1fr}.viewer img.slide{height:240px}.card img{height:130px}}
+textarea{width:100%;min-height:90px}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">📸 Memo<span>rees</span></div>
+<div class="row" id="nav" style="flex:1"></div>
+<button class="btn" id="themeBtn" data-tip="Toggle light / dark theme">🌞/🌙</button>
+<button class="btn" onclick="show('about')">About</button>
+</header>
+<div class="wrap">
+
+<section id="s-auth" class="screen"><div class="card"><div class="pad">
+<h2>Welcome back 💛</h2>
+<div class="row"><input id="u" placeholder="username" autocomplete="username"><input id="p" type="password" placeholder="password" autocomplete="current-password"></div>
+<p></p><div class="row"><button class="btn primary" onclick="doLogin()">Login</button><button class="btn" onclick="doReg()" data-tip="Create a new account">Sign up</button></div>
+<p class="mut" id="authmsg"></p></div></div></section>
+
+<section id="s-albums" class="screen"><div class="row">
+<h2 style="flex:1">Your albums</h2><button class="btn primary" onclick="newAlbum()" data-tip="Create a memory album">+ New album</button>
+<button class="btn" onclick="show('settings')" data-tip="EXIF, theme and font defaults">⚙️ Settings</button><button class="btn" onclick="doLogout()">Logout</button></div>
+<div class="grid" id="albums"></div></section>
+
+<section id="s-album" class="screen"><div class="row">
+<button class="btn" onclick="show('albums');loadAlbums()">← Albums</button>
+<h2 id="atitle" style="flex:1"></h2><span class="mut" id="alink"></span></div>
+<div class="row"><label>Upload JPG/PNG/HEIF <input type="file" id="files" multiple accept=".jpg,.jpeg,.png,.heif,.heic"></label>
+<button class="btn primary" onclick="doUpload()">⬆ Upload</button></div>
+<div class="row"><span class="mut">Caption font:</span><select id="afont" onchange="saveAlbum()"><option value="hand">✍ Handwritten</option><option value="sans">Modern sans</option><option value="serif">Serif bookish</option></select>
+<span class="mut">Transition:</span><select id="atrans" onchange="saveAlbum()"><option value="fade">Fade</option><option value="slide">Slide</option><option value="zoom">Ken Burns</option><option value="none">None</option></select>
+<button class="btn" onclick="regen()" data-tip="Revoke old link, issue a new one">🔗 New link</button></div>
+<div class="viewer small" id="viewer" style="margin-top:12px"><img id="slide" class="slide fade" src="">
+<div class="vbar"><span id="vtitle"></span><span><button class="cbtn" onclick="fullV()" data-tip="Fullscreen">⛶</button></span></div>
+<div class="vctrl"><button class="cbtn" onclick="step(-1)">◀</button><button class="cbtn" id="playB" onclick="toggleP()">⏸</button><button class="cbtn" onclick="step(1)">▶</button></div></div>
+<div class="row" style="margin-top:8px"><span class="mut">View:</span><button class="btn" onclick="vsize('small')">Small</button><button class="btn" onclick="vsize('large')">Large</button><button class="btn" onclick="vsize('full')">Full</button></div>
+<div class="caption" id="capbox"><div class="comment" id="cap"></div><div class="exif" id="ex"></div></div>
+<div class="set"><b>Edit this photo's comment</b><textarea id="cedit" placeholder="Multiline comment for the currently shown photo…"></textarea>
+<p></p><button class="btn primary" onclick="saveComment()">💾 Save comment</button> <span class="mut" id="cmsg"></span></div>
+<div class="grid" id="thumbs" style="margin-top:12px"></div></section>
+
+<section id="s-public" class="screen">
+<div class="viewer large" id="pviewer"><img id="pslide" class="slide fade" src="">
+<div class="vbar"><span id="ptitle"></span><button class="cbtn" onclick="document.getElementById('pviewer').requestFullscreen()">⛶</button></div>
+<div class="vctrl"><button class="cbtn" onclick="pstep(-1)">◀</button><button class="cbtn" id="ppBtn" onclick="ptoggle()">⏸</button><button class="cbtn" onclick="pstep(1)">▶</button></div></div>
+<div class="caption" id="pcapbox"><div class="comment" id="pcap"></div><div class="exif" id="pex"></div></div>
+<p class="mut">Readonly public link • Made with Memorees 💛</p></section>
+
+<section id="s-settings" class="screen"><div class="card"><div class="pad">
+<h2>⚙️ Settings</h2><p class="mut">Choose which data shows on the view page + defaults.</p>
+<div id="exbox"></div>
+<p></p><div class="row"><span>Default font</span><select id="sfont"><option value="hand">Handwritten</option><option value="sans">Modern sans</option><option value="serif">Serif bookish</option></select>
+<button class="btn primary" onclick="saveSettings()">Save</button><button class="btn" onclick="show('albums')">Done</button></div></div></div></section>
+
+<section id="s-about" class="screen"><div class="card"><div class="pad">
+<h2>About Memorees</h2><p id="ver">…</p>
+<p class="mut">Lightweight Docker stack for homelabs: FastAPI + SQLite, JPG/PNG/HEIF, EXIF + taken/upload dates, public readonly slideshows. V1. Hosted (non-Docker) mode planned later.</p>
+<button class="btn" onclick="history.back()">← Back</button></div></div></section>
+
+</div>
+<script>
+let ME=null,AID=null,PH=[],I=0,T=null,PP=[],PI=0,PT=null;
+const $=id=>document.getElementById(id);
+const F={hand:'font-hand',sans:'font-sans',serif:'font-serif'};
+function show(n){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$('s-'+n).classList.add('on');if(n==='about')ver()}
+function exPills(e){return Object.entries(e).map(([k,v])=>`<span class="pill">${k}: ${v}</span>`).join('')}
+async function api(p,o={}){const r=await fetch(p,o);if(!r.ok)throw new Error(await r.text());return r.json()}
+async function boot(){document.documentElement.dataset.theme=localStorage.theme||'light';
+ if(location.pathname.startsWith('/p/')){const id=location.pathname.split('/')[2];return pub(id)}
+ try{const m=await api('/api/me');if(m.user){ME=m.user;nav();return albumsTab()}}catch(e){}
+ nav();show('auth')}
+function nav(){$('nav').innerHTML=ME?`<span class="mut">👋 ${ME}</span>`:''}
+$('themeBtn').onclick=()=>{const h=document.documentElement;h.dataset.theme=h.dataset.theme==='light'?'dark':'light';localStorage.theme=h.dataset.theme};
+async function doLogin(){try{await api('/api/login',{method:'POST',body:new URLSearchParams({username:$('u').value,password:$('p').value})});location.reload()}catch(e){$('authmsg').textContent='Login failed: '+e.message}}
+async function doReg(){try{await api('/api/register',{method:'POST',body:new URLSearchParams({username:$('u').value,password:$('p').value})});location.reload()}catch(e){$('authmsg').textContent='Signup failed: '+e.message}}
+async function doLogout(){await api('/api/logout',{method:'POST'});location.reload()}
+async function albumsTab(){show('albums');await loadAlbums()}
+async function loadAlbums(){const a=await api('/api/albums');$('albums').innerHTML=a.map(x=>`<div class="card polaroid" style="cursor:pointer" onclick="openAlbum(${x.id})" data-tip="${x.count} photos • click to open">
+ ${x.cover?`<img src="${x.cover}">`:`<div style="height:180px;display:grid;place-items:center;font-size:48px">📷</div>`}
+ <div class="pad"><b>${x.title}</b><div class="mut">${x.count} photos • 🔗 public link ready</div></div></div>`).join('')||'<p class="mut">No albums yet — hit + New album.</p>'}
+async function newAlbum(){const t=prompt('Album name?','Beach day!');if(!t)return;const r=await api('/api/albums',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:t})});openAlbum(r.id)}
+async function openAlbum(id){AID=id;const d=await api(`/api/albums/${id}/photos`);PH=d.photos;I=0;
+ $('atitle').textContent='🏖️ '+d.album.title;$('alink').textContent=d.album.link;$('afont').value=d.album.font;$('atrans').value=d.album.transition;
+ $('thumbs').innerHTML=PH.map((p,i)=>`<div class="card" style="cursor:pointer" onclick="jump(${i})"><img src="${p.src}"><div class="pad"><div class="mut">${(p.comment||'no comment').slice(0,60)}</div></div></div>`).join('');
+ paint();show('album')}
+function paint(){if(!PH.length){$('slide').src='';$('cap').textContent='Upload photos to begin.';$('ex').innerHTML='';return}
+ const p=PH[I];const tr=$('atrans').value;const el=$('slide');el.src=p.src;el.className='slide '+(tr==='slide'?'sl':tr==='zoom'?'zm':tr==='none'?'':'fade');void el.offsetWidth;
+ $('vtitle').textContent=`${$('atitle').textContent} • ${I+1}/${PH.length}`;
+ $('cap').textContent=p.comment||'(no comment yet — write one below)';$('cedit').value=p.comment||'';
+ $('ex').innerHTML=exPills(p.exif||{});$('capbox').className='caption '+F[$('afont').value||'hand'];
+ clearInterval(T);T=setInterval(()=>step(1),5000);$('playB').textContent='⏸'}
+function step(d){if(!PH.length)return;I=(I+d+PH.length)%PH.length;paint()}
+function jump(i){I=i;paint()}
+function toggleP(){if($('playB').textContent==='⏸'){clearInterval(T);$('playB').textContent='▶'}else{paint()}}
+function vsize(s){$('viewer').className='viewer '+s}
+function fullV(){const v=$('viewer');document.fullscreenElement?document.exitFullscreen():v.requestFullscreen()}
+async function doUpload(){const fs=$('files').files;if(!fs.length)return alert('Pick files first');const fd=new FormData();for(const f of fs)fd.append('files',f);
+ const r=await api(`/api/albums/${AID}/photos`,{method:'POST',body:fd});alert(`Uploaded ${r.uploaded}`);openAlbum(AID)}
+async function saveComment(){if(!PH[I])return;await api(`/api/photos/${PH[I].id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({comment:$('cedit').value})});$('cmsg').textContent='saved ✓';PH[I].comment=$('cedit').value;$('cap').textContent=$('cedit').value;setTimeout(()=>$('cmsg').textContent='',1500)}
+async function saveAlbum(){await api(`/api/albums/${AID}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({font:$('afont').value,transition:$('atrans').value})});paint()}
+async function regen(){const r=await api(`/api/albums/${AID}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({regen:true})});$('alink').textContent=r.link;alert('New link: '+r.link)}
+async function loadSettings(){const s=await api('/api/settings');const L=[['show_camera','Camera'],['show_lens','Lens'],['show_exposure','Exposure (focal/aperture/shutter/ISO)'],['show_gps','GPS'],['show_taken','Taken date'],['show_uploaded','Upload date'],['show_dims','Dimensions']];
+ $('exbox').innerHTML=L.map(([k,l])=>`<label style="display:block;margin:6px 0"><input type="checkbox" data-k="${k}" ${s[k]?'checked':''}> ${l}</label>`).join('');$('sfont').value=s.font_default||'hand';show('settings')}
+async function saveSettings(){const b={};document.querySelectorAll('#exbox input').forEach(i=>b[i.dataset.k]=i.checked);b.font_default=$('sfont').value;await api('/api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});alert('Settings saved ✓')}
+async function pub(id){show('public');const d=await api('/api/p/'+id);PP=d.photos;PI=0;
+ $('ptitle').textContent=`${d.album} • by ${d.author}`;ppaint();
+ $('pcapbox').className='caption '+(F[d.font]||'font-hand')}
+function ppaint(){if(!PP.length){$('pcap').textContent='Empty album.';return}const p=PP[PI];const el=$('pslide');el.src=p.src;el.className='slide fade';void el.offsetWidth;
+ $('pcap').textContent=p.comment||'';$('pex').innerHTML=exPills(p.exif||{});clearInterval(PT);PT=setInterval(()=>pstep(1),5000);$('ppBtn').textContent='⏸'}
+function pstep(d){PI=(PI+d+PP.length)%PP.length;ppaint()}
+function ptoggle(){if($('ppBtn').textContent==='⏸'){clearInterval(PT);$('ppBtn').textContent='▶'}else{ppaint()}}
+async function ver(){try{const v=await api('/api/version');$('ver').textContent=`Version ${v.version} • build ${v.build} • ${v.date}`}catch(e){$('ver').textContent='Version unknown (offline preview)'}}
+// swipe (tablet)
+[['viewer',d=>step(d)],['pviewer',d=>pstep(d)]].forEach(([id,fn])=>{let x=0;const v=$(id);if(!v)return;v.addEventListener('touchstart',e=>x=e.touches[0].clientX,{passive:true});v.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-x;if(Math.abs(dx)>40)fn(dx<0?1:-1)},{passive:true})});
+boot();
+</script></body></html>
