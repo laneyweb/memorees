@@ -23,8 +23,9 @@ input,select,textarea{background:var(--card);color:var(--ink);border:2px solid v
 [data-tip]{position:relative}[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);background:var(--ink);color:var(--bg);font-size:12px;padding:6px 10px;border-radius:8px;white-space:nowrap;max-width:calc(100vw - 32px);overflow:hidden;text-overflow:ellipsis;z-index:60;pointer-events:none}
 header [data-tip]:hover::after,#s-albums [data-tip]:hover::after{top:calc(100% + 8px);bottom:auto}
 .viewer{background:#000;color:#fff;border-radius:18px;overflow:hidden;position:relative;border:3px solid var(--ink);touch-action:pan-y}
-.viewer img.slide{width:100%;height:380px;object-fit:cover;display:block}
+.viewer img.slide{width:100%;height:380px;object-fit:contain;display:block;background:#000}
 .viewer.small img.slide{height:220px}.viewer.full img.slide{height:70vh}
+.viewer:fullscreen{border:0;border-radius:0}.viewer:fullscreen img.slide{height:100vh}
 .viewer img.fade{animation:fd 1s}.viewer img.sl{animation:sl .6s}.viewer img.zm{animation:zm 3s}
 @keyframes fd{from{opacity:0}to{opacity:1}}@keyframes sl{from{opacity:0;transform:translateX(60px)}to{opacity:1}}@keyframes zm{from{transform:scale(1.12)}to{transform:scale(1)}}
 .vbar{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:linear-gradient(rgba(0,0,0,.6),transparent);font-size:14px;gap:8px;flex-wrap:wrap}
@@ -77,7 +78,7 @@ textarea{width:100%;min-height:90px}
 <div class="viewer small" id="viewer" style="margin-top:12px"><img id="slide" class="slide fade" src="">
 <div id="noview" style="display:none;min-height:220px;place-items:center;text-align:center;padding:30px 16px;color:#fff;font-size:18px">📷 No photos yet.<br><span style="font-size:14px;opacity:.8">Upload above to begin the slideshow.</span></div>
 <div class="vbar"><span id="vtitle"></span><span><button class="cbtn" onclick="fullV()" data-tip="Fullscreen">⛶</button></span></div>
-<div class="vctrl" id="vctrl"><button class="cbtn" onclick="step(-1)">◀</button><button class="cbtn" id="playB" onclick="toggleP()">⏸</button><button class="cbtn" onclick="step(1)">▶</button></div></div>
+<div class="vctrl" id="vctrl"><button class="cbtn" onclick="step(-1)">◀</button><button class="cbtn" id="playB" data-tip="Play / pause" onclick="toggleP()">▶</button><button class="cbtn" onclick="step(1)">▶</button></div></div>
 <div class="row" style="margin-top:8px"><span class="mut">View:</span><button class="btn" onclick="vsize('small')">Small</button><button class="btn" onclick="vsize('large')">Medium</button><button class="btn" onclick="vsize('full')">Large</button></div>
 <div class="caption" id="capbox"><div class="comment" id="cap"></div><div class="exif" id="ex"></div></div>
 <div class="set"><b>Edit this photo's comment</b><textarea id="cedit" placeholder="Multiline comment for the currently shown photo…"></textarea>
@@ -88,7 +89,7 @@ textarea{width:100%;min-height:90px}
 <div class="viewer large" id="pviewer"><img id="pslide" class="slide fade" src="">
 <div id="pnoview" style="display:none;min-height:300px;place-items:center;text-align:center;padding:30px 16px;color:#fff;font-size:18px">📷 This album is empty.</div>
 <div class="vbar"><span id="ptitle"></span><button class="cbtn" onclick="document.getElementById('pviewer').requestFullscreen()">⛶</button></div>
-<div class="vctrl"><button class="cbtn" onclick="pstep(-1)">◀</button><button class="cbtn" id="ppBtn" onclick="ptoggle()">⏸</button><button class="cbtn" onclick="pstep(1)">▶</button></div></div>
+<div class="vctrl"><button class="cbtn" onclick="pstep(-1)">◀</button><button class="cbtn" id="ppBtn" data-tip="Play / pause" onclick="ptoggle()">▶</button><button class="cbtn" onclick="pstep(1)">▶</button></div></div>
 <div class="row" style="margin-top:10px"><span class="mut">View:</span><button class="btn" onclick="psize('small')" data-tip="Small preview">Small</button><button class="btn" onclick="psize('large')" data-tip="Large focus view">Medium</button><button class="btn" onclick="psize('full')" data-tip="Full theatre view">Large</button></div>
 <div class="caption" id="pcapbox"><div class="comment" id="pcap"></div><div class="exif" id="pex"></div></div>
 <p class="mut">Readonly public link • Made with Memorees 💛</p></section>
@@ -138,18 +139,18 @@ async function submitAlbum(){const t=$('aname').value.trim();if(!t){$('amsg').te
 async function openAlbum(id){AID=id;const d=await api(`/api/albums/${id}/photos`);PH=d.photos;I=0;
  $('atitle').textContent='🏖️ '+d.album.title;$('alink').textContent=d.album.link;$('afont').value=d.album.font;$('atrans').value=d.album.transition;
  $('thumbs').innerHTML=PH.map((p,i)=>`<div class="card" style="cursor:pointer" onclick="jump(${i})"><img src="${p.src}"><div class="pad"><div class="mut">${(p.comment||'no comment').slice(0,60)}</div></div></div>`).join('');
- paint();show('album')}
+ paint();{let vs='small';try{vs=localStorage.vsize||'small'}catch(e){}$('viewer').className='viewer '+vs}show('album')}
 function paint(){if(!PH.length){$('slide').style.display='none';$('noview').style.display='grid';$('vctrl').style.display='none';$('vtitle').textContent='Empty album';$('cap').textContent='Upload photos to begin.';$('ex').innerHTML='';return}
  $('slide').style.display='';$('noview').style.display='none';$('vctrl').style.display='';
  const p=PH[I];const tr=$('atrans').value;const el=$('slide');el.src=p.src;el.className='slide '+(tr==='slide'?'sl':tr==='zoom'?'zm':tr==='none'?'':'fade');void el.offsetWidth;
  $('vtitle').textContent=`${$('atitle').textContent} • ${I+1}/${PH.length}`;
  $('cap').textContent=p.comment||'(no comment yet — write one below)';if(paint._i!==I){$('cedit').value=p.comment||'';paint._i=I}
  $('ex').innerHTML=exPills(p.exif||{});$('capbox').className='caption '+F[$('afont').value||'hand'];
- clearInterval(T);T=setInterval(()=>step(1),5000);$('playB').textContent='⏸'}
+ $('playB').textContent=T?'⏸':'▶'}
 function step(d){if(!PH.length)return;I=(I+d+PH.length)%PH.length;paint()}
 function jump(i){I=i;paint()}
-function toggleP(){if($('playB').textContent==='⏸'){clearInterval(T);$('playB').textContent='▶'}else{paint()}}
-function vsize(s){$('viewer').className='viewer '+s}
+function toggleP(){if(T){clearInterval(T);T=null;$('playB').textContent='▶'}else{T=setInterval(()=>step(1),5000);$('playB').textContent='⏸'}}
+function vsize(s){try{localStorage.vsize=s}catch(e){}$('viewer').className='viewer '+s}
 function fullV(){const v=$('viewer');document.fullscreenElement?document.exitFullscreen():v.requestFullscreen()}
 async function doUpload(){const fs=$('files').files;if(!fs.length)return alert('Pick files first');const fd=new FormData();for(const f of fs)fd.append('files',f);
  const r=await api(`/api/albums/${AID}/photos`,{method:'POST',body:fd});alert(`Uploaded ${r.uploaded}`);openAlbum(AID)}
@@ -160,13 +161,14 @@ async function loadSettings(){const s=await api('/api/settings');const L=[['show
  $('exbox').innerHTML=L.map(([k,l])=>`<label style="display:block;margin:6px 0"><input type="checkbox" data-k="${k}" ${s[k]?'checked':''}> ${l}</label>`).join('');$('sfont').value=s.font_default||'hand';show('settings')}
 async function saveSettings(){const b={};document.querySelectorAll('#exbox input').forEach(i=>b[i.dataset.k]=i.checked);b.font_default=$('sfont').value;await api('/api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});alert('Settings saved ✓')}
 async function pub(id){show('public');const d=await api('/api/p/'+id);PP=d.photos;PI=0;
- $('ptitle').textContent=`${d.album} • by ${d.author}`;ppaint();
+ $('ptitle').textContent=`${d.album} • by ${d.author}`;{let ps='large';try{ps=localStorage.psize||'large'}catch(e){}$('pviewer').className='viewer '+ps}ppaint();
  $('pcapbox').className='caption '+(F[d.font]||'font-hand')}
 function ppaint(){if(!PP.length){$('pslide').style.display='none';$('pnoview').style.display='grid';$('pcap').textContent='Empty album.';return}$('pslide').style.display='';$('pnoview').style.display='none';const p=PP[PI];const el=$('pslide');el.src=p.src;el.className='slide fade';void el.offsetWidth;
- $('pcap').textContent=p.comment||'';$('pex').innerHTML=exPills(p.exif||{});clearInterval(PT);PT=setInterval(()=>pstep(1),5000);$('ppBtn').textContent='⏸'}
+ $('pcap').textContent=p.comment||'';$('pex').innerHTML=exPills(p.exif||{});$('ppBtn').textContent=PT?'⏸':'▶'}
 function pstep(d){PI=(PI+d+PP.length)%PP.length;ppaint()}
-function psize(s){$('pviewer').className='viewer '+s}
-function ptoggle(){if($('ppBtn').textContent==='⏸'){clearInterval(PT);$('ppBtn').textContent='▶'}else{ppaint()}}
+/* psize lives with ptoggle above (with size memory) */
+function ptoggle(){if(PT){clearInterval(PT);PT=null;$('ppBtn').textContent='▶'}else{PT=setInterval(()=>pstep(1),5000);$('ppBtn').textContent='⏸'}}
+function psize(s){try{localStorage.psize=s}catch(e){}$('pviewer').className='viewer '+s}
 async function ver(){try{const v=await api('/api/version');$('ver').textContent=`Version ${v.version} • build ${v.build} • ${v.date}`}catch(e){$('ver').textContent='Version unknown (offline preview)'}}
 // swipe (tablet)
 [['viewer',d=>step(d)],['pviewer',d=>pstep(d)]].forEach(([id,fn])=>{let x=0;const v=$(id);if(!v)return;v.addEventListener('touchstart',e=>x=e.touches[0].clientX,{passive:true});v.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-x;if(Math.abs(dx)>40)fn(dx<0?1:-1)},{passive:true})});

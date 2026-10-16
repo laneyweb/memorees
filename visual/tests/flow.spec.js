@@ -31,6 +31,7 @@ test('owner flow on desktop', async ({ page }) => {
   await page.fill('#aname', 'Visual album');
   await page.press('#aname', 'Enter');
   await expect(page.locator('#atitle')).toContainText('Visual album');
+  await expect(page.locator('#playB')).toHaveText('▶');
 
   // Empty state: friendly placeholder, no broken image, no controls
   await expect(page.locator('#noview')).toBeVisible();
@@ -52,6 +53,8 @@ test('owner flow on desktop', async ({ page }) => {
   // Settings + font/transition persist
   await page.selectOption('#afont', 'serif');
   await expect(page.locator('#capbox.font-serif')).toBeVisible();
+  await page.click('#s-album button:has-text("Medium")');
+  await expect.poll(() => page.evaluate(() => localStorage.vsize)).toBe('large');
   await page.screenshot({ path: `${SHOTS}/05-album-full.png` });
 
   // About Back returns (dead-button regression)
@@ -89,6 +92,7 @@ test('public link with no login', async ({ browser }) => {
   const before = await page.locator('#pslide').getAttribute('src');
   await page.click('#s-public button:has-text("Large")');
   await expect(page.locator('#pviewer.full')).toBeVisible();
+  await expect.poll(() => page.evaluate(() => localStorage.psize)).toBe('full');
   await page.click('#pviewer .vctrl button:has-text("▶")').catch(() => {});
   await page.locator('#pviewer').hover();
   await page.screenshot({ path: `${SHOTS}/08-public.png` });
