@@ -48,6 +48,7 @@ check("owner sizes in control dock", "#ovseg" in html)
 check("bars auto-hide on idle", ".viewer.idle" in html)
 check("comment zoom controls", "capZoom(" in html)
 check("photo delete controls", "delPhotoBtn" in html)
+check("mini zoom buttons", 'class="mini"' in html)
 
-print(f"\n{28 - len(fails)}/28 passed")
+print(f"\n{29 - len(fails)}/29 passed")
 sys.exit(1 if fails else 0)
