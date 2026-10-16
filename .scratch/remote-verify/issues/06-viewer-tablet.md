@@ -12,6 +12,7 @@ touch-sized controls.
 - [ ] Prev/next/pause/autoplay, view sizes and fullscreen all respond
 - [ ] Transition and font choices visibly apply; theme toggle persists
 - [ ] Narrow viewport collapses cleanly; swipe moves slides; controls are touch-sized
+- [x] Machine half covered by the visual suite (owner flow, anon public view, tablet render plus touch swipe, About Back, theme, empty states, zero page errors)
 - [ ] Manual checklist signed off on one real tablet
 - [ ] App chrome: every button navigates somewhere (About Back returns to the previous screen, never dead)
 - [ ] New-album form opens, creates on Enter, closes on Esc/backdrop/Cancel

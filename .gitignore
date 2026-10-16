@@ -1,4 +1,8 @@
 data/
+visual-shots/
+visual/node_modules/
+visual/test-results/
+.scratch/visual-data/
 __pycache__/
 *.pyc
 .env
