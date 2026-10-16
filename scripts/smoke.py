@@ -14,8 +14,12 @@ import io
 import json
 import sys
 import urllib.parse
+import pathlib
+import urllib.error
+import urllib.parse
 import urllib.request
 from http.cookiejar import CookieJar
+EXPECTED_VERSION = (pathlib.Path(__file__).resolve().parent.parent / "VERSION").read_text().strip()
 
 # 1x1 PNG payload (no imaging libs needed)
 PNG_1PX = base64.b64decode(
@@ -78,7 +82,7 @@ def main():
     s, b = c.get("/api/version")
     try:
         v = json.loads(b)
-        check("01 version endpoint", s == 200 and v.get("version") == "0.1.0", f"{v}")
+        check("01 version endpoint", s == 200 and v.get("version") == EXPECTED_VERSION, f"{v}")
         check("01 build provenance", v.get("build") not in ("", "dev", None), f"build={v.get('build')}")
     except Exception as e:
         check("01 version endpoint", False, e)
