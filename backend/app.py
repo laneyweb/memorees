@@ -320,7 +320,7 @@ async def create_album(body: dict, session: str | None = Cookie(default=None)):
     u = need(me(session))
     title = (body.get("title") or "Untitled").strip()[:80]
     c = db()
-    pu = uuid.uuid4().hex[:12]
+    pu = uuid.uuid4().hex
     cur = c.execute("INSERT INTO albums(owner,title,public_uuid,created) VALUES(?,?,?,?)",
                     (u["id"], title, pu, datetime.utcnow().isoformat()))
     c.commit()
@@ -342,7 +342,7 @@ async def update_album(aid: int, body: dict, session: str | None = Cookie(defaul
     trans = body.get("transition", a["transition"]) if body.get("transition") in ("fade", "slide", "zoom", "none") else a["transition"]
     pu = a["public_uuid"]
     if body.get("regen"):
-        pu = uuid.uuid4().hex[:12]
+        pu = uuid.uuid4().hex
     c.execute("UPDATE albums SET title=?,font=?,transition=?,public_uuid=? WHERE id=?",
               (title, font, trans, pu, aid))
     c.commit()
