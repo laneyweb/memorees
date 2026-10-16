@@ -41,11 +41,11 @@ test('owner flow on desktop', async ({ page }) => {
 
   // Upload + multiline comment round-trip
   await page.setInputFiles('#files', path.join(__dirname, 'fixtures', 'probe.png'));
-  await page.click('text=⬆ Upload');
+  await page.click('button:has-text("Upload")');
   await expect(page.locator('#noview')).toBeHidden({ timeout: 15000 });
   await expect(page.locator('#cedit')).toHaveValue('');
   await page.fill('#cedit', 'line one\nline two');
-  await page.click('text=💾 Save comment');
+  await page.click('text=Save comment');
   await expect(page.locator('#cap')).toContainText('line two');
   const ex = await page.locator('#ex').textContent();
   expect(ex).toMatch(/uploaded: \d{2} \w{3} \d{4}/);
@@ -78,11 +78,11 @@ test('owner flow on desktop', async ({ page }) => {
   await expect(page.locator('#noview')).toBeVisible();
   // re-seed one photo so the public/tablet tests have content
   await page.setInputFiles('#files', path.join(__dirname, 'fixtures', 'probe.png'));
-  await page.click('text=⬆ Upload');
+  await page.click('button:has-text("Upload")');
   await expect(page.locator('#noview')).toBeHidden({ timeout: 15000 });
   await expect(page.locator('#cedit')).toHaveValue('');
   await page.fill('#cedit', 'line one\nline two');
-  await page.click('text=💾 Save comment');
+  await page.click('text=Save comment');
   await expect(page.locator('#cap')).toContainText('line two');
   await expect(page.locator('#s-album.on')).toBeVisible();
   await page.screenshot({ path: `${SHOTS}/05-album-full.png` });

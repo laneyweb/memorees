@@ -52,6 +52,7 @@ check("mini zoom buttons", 'class="mini"' in html)
 check("brand mark in header", 'id="logoMark"' in html)
 check("brand favicon", 'rel="icon"' in html)
 check("no emoji album chrome", "🏖️" not in html and "New memory album 📸" not in html)
+check("no decorative emoji", all(e not in html for e in ["💛", "💾", "📷", "👋", "⚙️", "⬆", "✍", "🔗", "🌞", "✓"]))
 
-print(f"\n{32 - len(fails)}/32 passed")
+print(f"\n{33 - len(fails)}/33 passed")
 sys.exit(1 if fails else 0)
