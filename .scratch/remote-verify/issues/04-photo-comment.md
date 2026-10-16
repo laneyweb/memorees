@@ -10,4 +10,4 @@ photo, and a multiline comment that round-trips exactly (line breaks kept).
 - [ ] PNG/JPG upload returns a count and each photo serves its preview bytes
 - [ ] A multiline comment saves and reads back byte-identical
 - [ ] Taken date (when present in EXIF) and upload date are recorded
-- [ ] HEIF checked by real phone upload at least once (script covers PNG/JPG)
+- [x] HEIF checked by real phone upload at least once (script covers PNG/JPG) — signed off on iPhone, works

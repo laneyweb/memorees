@@ -15,7 +15,7 @@ touch-sized controls.
 - [x] Machine half covered by the visual suite (owner flow, anon public view, tablet render plus touch swipe, About Back, theme, empty states, zero page errors)
 - [x] Slideshows start paused; size choice remembered; whole image shown uncropped; fullscreen fills the screen (suite-asserted)
 - [x] Viewer bars auto-hide after 3s idle and return on move/tap (suite-asserted)
-- [ ] Manual checklist signed off on one real tablet
+- [x] Manual checklist signed off on one real tablet — signed off on tablet/iOS
 - [ ] App chrome: every button navigates somewhere (About Back returns to the previous screen, never dead)
 - [ ] New-album form opens, creates on Enter, closes on Esc/backdrop/Cancel
 - [ ] Empty albums (owner and public) show a friendly placeholder, never a broken image
