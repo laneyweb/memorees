@@ -27,7 +27,13 @@ header [data-tip]:hover::after,#s-albums [data-tip]:hover::after{top:calc(100% +
 .viewer{background:transparent;color:#fff;border-radius:18px;overflow:hidden;position:relative;border:3px solid var(--ink);touch-action:pan-y}
 .viewer img.slide{width:100%;height:380px;object-fit:contain;display:block}
 .viewer.small img.slide{height:220px}.viewer.full img.slide{height:70vh}
-.viewer:fullscreen{border:0;border-radius:0;background:var(--bg)}.viewer:fullscreen img.slide{height:100vh}
+.viewer:fullscreen{border:0;border-radius:0;background:var(--bg)}
+.fscap{display:none;position:absolute;left:25%;width:50%;bottom:76px;background:rgba(20,14,10,.82);border:1px solid rgba(255,255,255,.25);border-radius:14px;padding:12px 14px;color:#fff;z-index:5}
+.fscap .comment{white-space:pre-line}
+.fscap .exif{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.fscap .pill{font-size:12px;border:1px solid rgba(255,255,255,.3);border-radius:99px;padding:3px 9px;background:transparent;color:#fff}
+.viewer:fullscreen .fscap{display:block}
+@media(max-width:700px){.fscap{left:5%;width:90%}}.viewer:fullscreen img.slide{height:100vh}
 .viewer img.fade{animation:fd 1s}.viewer img.sl{animation:sl .6s}.viewer img.zm{animation:zm 3s}
 @keyframes fd{from{opacity:0}to{opacity:1}}@keyframes sl{from{opacity:0;transform:translateX(60px)}to{opacity:1}}@keyframes zm{from{transform:scale(1.12)}to{transform:scale(1)}}
 .vbar{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:linear-gradient(rgba(0,0,0,.6),transparent);font-size:14px;gap:8px;flex-wrap:wrap}
@@ -91,7 +97,7 @@ textarea{width:100%;min-height:90px}
 <div class="viewer small" id="viewer" style="margin-top:12px"><img id="slide" class="slide fade" src="">
 <div id="noview" style="display:none;min-height:220px;place-items:center;text-align:center;padding:30px 16px;color:var(--ink);font-size:18px">No photos yet.<br><span style="font-size:14px;opacity:.8">Upload above to begin the slideshow.</span></div>
 <div class="vbar"><span id="vtitle"></span><span><button class="cbtn" onclick="fullV()" data-tip="Fullscreen">⛶</button></span></div>
-<div class="vctrl" id="vctrl"><button class="cbtn" onclick="step(-1)">◀</button><button class="cbtn" id="playB" data-tip="Play / pause" onclick="toggleP()">▶</button><button class="cbtn" onclick="step(1)">▶</button><span class="dockseg" id="ovseg">Size <button data-s="small" onclick="vsize('small')">S</button><button data-s="medium" onclick="vsize('medium')">M</button><button data-s="large" onclick="vsize('large')">L</button></span></div></div>
+<div class="vctrl" id="vctrl"><button class="cbtn" onclick="step(-1)">◀</button><button class="cbtn" id="playB" data-tip="Play / pause" onclick="toggleP()">▶</button><button class="cbtn" onclick="step(1)">▶</button><span class="dockseg" id="ovseg">Size <button data-s="small" onclick="vsize('small')">S</button><button data-s="medium" onclick="vsize('medium')">M</button><button data-s="large" onclick="vsize('large')">L</button></span></div><div class="fscap" id="fscap"><div class="comment" id="fscapc"></div><div class="exif" id="fscapx"></div></div></div>
 <!-- owner sizes live in the control dock, mirroring the public view -->
 <div class="caption" id="capbox"><button class="mini" id="editBtn" onclick="startEdit()" data-tip="Edit comment">Edit</button><div class="comment" id="cap"></div><div class="exif" id="ex"></div></div>
 <div class="grid" id="thumbs" style="margin-top:12px"></div><div id="more" class="mut" style="text-align:center;padding:12px"></div></section>
@@ -100,7 +106,7 @@ textarea{width:100%;min-height:90px}
 <div class="viewer large" id="pviewer"><img id="pslide" class="slide fade" src="">
 <div id="pnoview" style="display:none;min-height:300px;place-items:center;text-align:center;padding:30px 16px;color:var(--ink);font-size:18px">This album is empty.</div>
 <div class="vbar"><span id="ptitle"></span><button class="cbtn" onclick="document.getElementById('pviewer').requestFullscreen()">⛶</button></div>
-<div class="vctrl"><button class="cbtn" onclick="pstep(-1)">◀</button><button class="cbtn" id="ppBtn" data-tip="Play / pause" onclick="ptoggle()">▶</button><button class="cbtn" onclick="pstep(1)">▶</button><span class="dockseg" id="pvseg">Size <button data-s="small" onclick="psize('small')">S</button><button data-s="medium" onclick="psize('medium')">M</button><button data-s="large" onclick="psize('large')">L</button></span></div></div>
+<div class="vctrl"><button class="cbtn" onclick="pstep(-1)">◀</button><button class="cbtn" id="ppBtn" data-tip="Play / pause" onclick="ptoggle()">▶</button><button class="cbtn" onclick="pstep(1)">▶</button><span class="dockseg" id="pvseg">Size <button data-s="small" onclick="psize('small')">S</button><button data-s="medium" onclick="psize('medium')">M</button><button data-s="large" onclick="psize('large')">L</button></span></div><div class="fscap" id="pfscap"><div class="comment" id="pfscapc"></div><div class="exif" id="pfscapx"></div></div></div>
 <!-- public sizes live in the control dock (prototype B winner, branch prototype/public-sizes) -->
 <div class="caption" id="pcapbox"><div class="comment" id="pcap"></div><div class="exif" id="pex"></div></div>
 <p class="mut">Readonly public link • Made with Memorees</p></section>
@@ -125,7 +131,7 @@ textarea{width:100%;min-height:90px}
 
 </div>
 <script>
-let ME=null,AID=null,PH=[],I=0,T=null,PP=[],PI=0,PT=null,PTOT=0,POFF=0,LOADING=false,PPTOT=0,PPOFF=0,PLOADING=false;
+let ME=null,AID=null,PH=[],I=0,T=null,PP=[],PI=0,PT=null,PTOT=0,POFF=0,LOADING=false,PPTOT=0,PPOFF=0,PLOADING=false,PFONT='font-sans';
 const $=id=>document.getElementById(id);
 const F={hand:'font-hand',sans:'font-sans',serif:'font-serif'};
 function goHome(){if(location.pathname.indexOf('/p/')===0){location.href='/'}else if(ME){albumsTab()}else{show('auth')}}
@@ -160,12 +166,12 @@ async function loadMore(){if(LOADING||(POFF>0&&PH.length>=PTOT))return;LOADING=t
 }catch(e){}LOADING=false}
 function appendThumbs(rows,start){$('thumbs').insertAdjacentHTML('beforeend',rows.map((p,k)=>`<div class="card" style="cursor:pointer" onclick="jump(${start+k})"><img loading="lazy" src="${p.thumb}"><button class="thumbx" onclick="event.stopPropagation();delPhoto(${p.id},this)" data-tip="Delete photo">×</button><div class="pad"><div class="mut">${(p.comment||'no comment').slice(0,60)}</div></div></div>`).join(''))}
 if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting&&$('s-album').classList.contains('on'))loadMore()})},{rootMargin:'600px'});addEventListener('load',()=>io.observe($('more')))}
-function paint(){if(!PH.length){$('slide').style.display='none';$('noview').style.display='grid';$('vctrl').style.display='none';$('vtitle').textContent='Empty album';$('cap').textContent='Upload photos to begin.';$('ex').innerHTML='';return}
+function paint(){if(!PH.length){$('slide').style.display='none';$('noview').style.display='grid';$('vctrl').style.display='none';$('vtitle').textContent='Empty album';$('cap').textContent='Upload photos to begin.';$('ex').innerHTML='';$('fscapc').textContent='';$('fscapx').innerHTML='';return}
  $('slide').style.display='';$('noview').style.display='none';$('vctrl').style.display='';
  const p=PH[I];const tr=$('atrans').value;const el=$('slide');el.src=p.src;el.className='slide '+(tr==='slide'?'sl':tr==='zoom'?'zm':tr==='none'?'':'fade');void el.offsetWidth;
  $('vtitle').textContent=`${$('atitle').textContent} • ${I+1}/${PTOT||PH.length}`;
  $('cap').textContent=p.comment||'(no comment yet — write one below)';
- $('ex').innerHTML=exPills(p.exif||{})+zoomHtml();$('capbox').className='caption '+F[$('afont').value||'hand'];applyCapZoom();
+ $('ex').innerHTML=exPills(p.exif||{})+zoomHtml();$('capbox').className='caption '+F[$('afont').value||'hand'];$('fscap').className='fscap '+F[$('afont').value||'hand'];$('fscapc').textContent=p.comment||'';$('fscapx').innerHTML=exPills(p.exif||{});applyCapZoom();
  $('playB').textContent=T?'⏸':'▶'}
 async function step(d){if(!PH.length&&!PTOT)return;let n=I+d;if((n>=PH.length||n<0)&&PH.length<PTOT){await loadMore()}if(!PH.length)return;if(n>=PH.length)n=0;if(n<0)n=PH.length-1;I=n;paint()}
 function jump(i){I=i;paint()}
@@ -177,7 +183,7 @@ async function doUpload(){const fs=$('files').files;if(!fs.length)return alert('
  const r=await api(`/api/albums/${AID}/photos`,{method:'POST',body:fd});alert(`Uploaded ${r.uploaded}`);openAlbum(AID)}
 function zoomHtml(){return `<span style="margin-left:auto;white-space:nowrap"><button class="mini" onclick="capZoom(-0.1)" data-tip="Smaller text">A−</button> <button class="mini" onclick="capZoom(0.1)" data-tip="Larger text">A+</button></span>`}
 function capZoom(d){let z=+(parseFloat(localStorage.capz||'1')||1);z=Math.min(1.5,Math.max(0.8,+(z+d).toFixed(1)));try{localStorage.capz=z}catch(e){}applyCapZoom()}
-function applyCapZoom(){const z=parseFloat(localStorage.capz||'1')||1;document.documentElement.style.setProperty('--capz',z);const base={'font-hand':22,'font-sans':16,'font-serif':18};['capbox','pcapbox'].forEach(bid=>{const box=$(bid);if(!box)return;const cls=(box.className.split(' ').find(c=>c.indexOf('font-')===0)||'font-sans');const com=box.querySelector('.comment');if(com)com.style.fontSize=(base[cls]*z)+'px'})}
+function applyCapZoom(){const z=parseFloat(localStorage.capz||'1')||1;document.documentElement.style.setProperty('--capz',z);const base={'font-hand':22,'font-sans':16,'font-serif':18};['capbox','pcapbox','fscap','pfscap'].forEach(bid=>{const box=$(bid);if(!box)return;const cls=(box.className.split(' ').find(c=>c.indexOf('font-')===0)||'font-sans');const com=box.querySelector('.comment');if(com)com.style.fontSize=(base[cls]*z)+'px'})}
 async function delPhoto(pid,btn){if(!btn.dataset.armed){btn.dataset.armed='1';btn.textContent='?';btn.classList.add('armed');setTimeout(()=>{if(btn.isConnected){btn.dataset.armed='';btn.textContent='×';btn.classList.remove('armed')}},3000);return}await api(`/api/photos/${pid}`,{method:'DELETE'});openAlbum(AID)}
 function startEdit(){const p=PH[I];if(!p)return;const cap=$('cap');cap.innerHTML='';const t=document.createElement('textarea');t.id='cedit2';t.style.width='100%';t.style.minHeight='90px';t.value=p.comment||'';const row=document.createElement('div');row.className='row';row.style.marginTop='8px';const s=document.createElement('button');s.className='btn primary';s.textContent='Save';s.onclick=saveInline;const c=document.createElement('button');c.className='btn';c.textContent='Cancel';c.onclick=()=>paint();row.append(s,c);cap.append(t,row);t.focus()}
 async function saveInline(){const v=$('cedit2').value;await api(`/api/photos/${PH[I].id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({comment:v})});PH[I].comment=v;paint()}
@@ -188,12 +194,12 @@ async function loadSettings(){const s=await api('/api/settings');const L=[['show
 async function saveSettings(){const b={};document.querySelectorAll('#exbox input').forEach(i=>b[i.dataset.k]=i.checked);b.font_default=$('sfont').value;await api('/api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});alert('Settings saved')}
 async function pub(id){show('public');PP=[];PPOFF=0;PPTOT=0;PI=0;const d0=await api(`/api/p/${id}?offset=0&limit=48`);
  await ploadMore(d0);
- $('ptitle').textContent=`${d0.album} • by ${d0.author}`;{let ps='medium';try{ps=localStorage.psize||'medium'}catch(e){}psize(ps)}ppaint();
+ $('ptitle').textContent=`${d0.album} • by ${d0.author}`;PFONT=F[d0.font]||'font-sans';{let ps='medium';try{ps=localStorage.psize||'medium'}catch(e){}psize(ps)}ppaint();
  $('pcapbox').className='caption '+(F[d0.font]||'font-hand')}
 async function ploadMore(first){if(PLOADING||(PPOFF>0&&PP.length>=PPTOT))return;PLOADING=true;try{
  const d=first||await api(`/api/p/${location.pathname.split('/')[2]}?offset=${PPOFF}&limit=48`);PPTOT=d.total;PP.push(...d.photos);PPOFF=PP.length}catch(e){}PLOADING=false}
-function ppaint(){if(!PP.length){$('pslide').style.display='none';$('pnoview').style.display='grid';$('pcap').textContent='Empty album.';return}$('pslide').style.display='';$('pnoview').style.display='none';const p=PP[PI];const el=$('pslide');el.src=p.src;el.className='slide fade';void el.offsetWidth;
- $('pcap').textContent=p.comment||'';$('pex').innerHTML=exPills(p.exif||{})+zoomHtml();applyCapZoom();$('ppBtn').textContent=PT?'⏸':'▶'}
+function ppaint(){if(!PP.length){$('pslide').style.display='none';$('pnoview').style.display='grid';$('pcap').textContent='Empty album.';$('pfscapc').textContent='';$('pfscapx').innerHTML='';return}$('pslide').style.display='';$('pnoview').style.display='none';const p=PP[PI];const el=$('pslide');el.src=p.src;el.className='slide fade';void el.offsetWidth;
+ $('pcap').textContent=p.comment||'';$('pex').innerHTML=exPills(p.exif||{})+zoomHtml();$('pfscap').className='fscap '+PFONT;$('pfscapc').textContent=p.comment||'';$('pfscapx').innerHTML=exPills(p.exif||{});applyCapZoom();$('ppBtn').textContent=PT?'⏸':'▶'}
 async function pstep(d){if(!PP.length&&!PPTOT)return;let n=PI+d;if((n>=PP.length||n<0)&&PP.length<PPTOT){await ploadMore()}if(!PP.length)return;if(n>=PP.length)n=0;if(n<0)n=PP.length-1;PI=n;ppaint()}
 /* psize lives with ptoggle above (with size memory) */
 function ptoggle(){if(PT){clearInterval(PT);PT=null;$('ppBtn').textContent='▶'}else{PT=setInterval(()=>pstep(1),5000);$('ppBtn').textContent='⏸'}}

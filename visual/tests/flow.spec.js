@@ -2,9 +2,12 @@
 // Shares state via module vars; file runs serially in one worker.
 const { test, expect } = require('@playwright/test');
 const path = require('path');
+const fs = require('fs');
 
 const SHOTS = path.join(__dirname, '..', '..', 'visual-shots');
+const LINKFILE = path.join(__dirname, '..', '..', '.scratch', 'visual-link.txt');
 let PUBLIC_PATH = null;
+function pubLink(){try{return fs.readFileSync(LINKFILE, 'utf8').trim()||PUBLIC_PATH}catch(e){return PUBLIC_PATH}}
 // Tests in one file share a worker and run in order.
 
 test('owner flow on desktop', async ({ page }) => {
@@ -107,6 +110,7 @@ test('owner flow on desktop', async ({ page }) => {
 
   const link = (await page.locator('#alink').textContent()).trim();
   PUBLIC_PATH = new URL(link).pathname;
+  fs.writeFileSync(LINKFILE, PUBLIC_PATH);
   expect(PUBLIC_PATH).toMatch(/^\/p\/[0-9a-f]+$/);
   expect(errors).toEqual([]);
 });
@@ -117,7 +121,7 @@ test('public link with no login', async ({ browser }) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(String(e)));
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto(PUBLIC_PATH);
+  await page.goto(pubLink());
   await expect(page.locator('#s-public.on')).toBeVisible();
   await expect(page.locator('#ptitle')).toContainText('Visual album');
   await expect(page.locator('#pcap')).toContainText('line two');
@@ -127,6 +131,13 @@ test('public link with no login', async ({ browser }) => {
   await page.click('#pvseg button[data-s="large"]');
   await expect(page.locator('#pviewer.full')).toBeVisible();
   await expect(page.locator('#pvseg button[data-s="large"].on')).toBeVisible();
+  const pfbox = await page.locator('#pviewer').boundingBox();
+  await page.mouse.move(pfbox.x + pfbox.width / 2, pfbox.y + 30);
+  await page.click('#s-public .vbar .cbtn');
+  await expect(page.locator('#pfscap')).toBeVisible();
+  await expect(page.locator('#pfscapc')).toContainText('line two');
+  await page.evaluate(() => { if (document.fullscreenElement) document.exitFullscreen() });
+  await expect(page.locator('#s-public.on')).toBeVisible();
   await expect.poll(() => page.evaluate(() => localStorage.psize)).toBe('large');
   await page.click('#pcapbox button:has-text("A+")');
   await expect.poll(() => page.evaluate(() => localStorage.capz)).toBe('1.1');
@@ -153,7 +164,7 @@ test('tablet touch flow', async ({ browser }) => {
   const page = await ctx.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(String(e)));
-  await page.goto(PUBLIC_PATH);
+  await page.goto(pubLink());
   await expect(page.locator('#s-public.on')).toBeVisible();
   await page.screenshot({ path: `${SHOTS}/09-tablet-public.png` });
   // Swipe left via touch events -> slide advances
