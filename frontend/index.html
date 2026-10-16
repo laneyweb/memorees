@@ -31,6 +31,8 @@ header [data-tip]:hover::after,#s-albums [data-tip]:hover::after{top:calc(100% +
 @keyframes fd{from{opacity:0}to{opacity:1}}@keyframes sl{from{opacity:0;transform:translateX(60px)}to{opacity:1}}@keyframes zm{from{transform:scale(1.12)}to{transform:scale(1)}}
 .vbar{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:linear-gradient(rgba(0,0,0,.6),transparent);font-size:14px;gap:8px;flex-wrap:wrap}
 .vctrl{position:absolute;bottom:0;left:0;right:0;display:flex;gap:10px;justify-content:center;align-items:center;padding:12px;background:linear-gradient(transparent,rgba(0,0,0,.78));flex-wrap:wrap}
+.viewer .vbar,.viewer .vctrl{transition:opacity .4s}
+.viewer.idle .vbar,.viewer.idle .vctrl{opacity:0;pointer-events:none}
 .cbtn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:99px;min-width:48px;min-height:48px;font-size:18px;cursor:pointer}
 .cbtn:hover{background:rgba(255,255,255,.32);transform:scale(1.08)}
 .dockseg{display:flex;gap:4px;align-items:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);border-radius:99px;padding:4px 8px 4px 12px;color:#fff;font-size:13px}
@@ -177,6 +179,10 @@ function ptoggle(){if(PT){clearInterval(PT);PT=null;$('ppBtn').textContent='▶'
 const PSIZE_CLS={small:'small',medium:'large',large:'full'};
 function psize(s){if(!PSIZE_CLS[s])s='medium';try{localStorage.psize=s}catch(e){}$('pviewer').className='viewer '+PSIZE_CLS[s];document.querySelectorAll('#pvseg [data-s]').forEach(b=>b.classList.toggle('on',b.dataset.s===s))}
 async function ver(){try{const v=await api('/api/version');$('ver').textContent=`Version ${v.version} • build ${v.build} • ${v.date}`}catch(e){$('ver').textContent='Version unknown (offline preview)'}}
+// viewer bars auto-hide after 3s idle, return on move/tap
+function poke(id){const v=$(id);if(!v)return;v.classList.remove('idle');clearTimeout(v._t);v._t=setTimeout(()=>v.classList.add('idle'),3000)}
+['mousemove','touchstart','click'].forEach(ev=>document.addEventListener(ev,()=>{poke('viewer');poke('pviewer')},{passive:true}));
+poke('viewer');poke('pviewer');
 // swipe (tablet)
 [['viewer',d=>step(d)],['pviewer',d=>pstep(d)]].forEach(([id,fn])=>{let x=0;const v=$(id);if(!v)return;v.addEventListener('touchstart',e=>x=e.touches[0].clientX,{passive:true});v.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-x;if(Math.abs(dx)>40)fn(dx<0?1:-1)},{passive:true})});
 boot();

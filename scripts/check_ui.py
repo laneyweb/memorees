@@ -45,6 +45,7 @@ check("viewer blends with theme", ".viewer{background:transparent" in html)
 check("about links github", "github.com/laneyweb/memorees" in html)
 check("public sizes in control dock", "dockseg" in html)
 check("owner sizes in control dock", "#ovseg" in html)
+check("bars auto-hide on idle", ".viewer.idle" in html)
 
-print(f"\n{25 - len(fails)}/25 passed")
+print(f"\n{26 - len(fails)}/26 passed")
 sys.exit(1 if fails else 0)

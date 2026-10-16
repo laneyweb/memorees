@@ -58,6 +58,10 @@ test('owner flow on desktop', async ({ page }) => {
   await page.click('#ovseg button[data-s="medium"]');
   await expect(page.locator('#ovseg button[data-s="medium"].on')).toBeVisible();
   await expect.poll(() => page.evaluate(() => localStorage.vsize)).toBe('medium');
+  await page.waitForTimeout(3600);
+  await expect.poll(() => page.locator('#s-album .vctrl').evaluate((e) => getComputedStyle(e).opacity)).toBe('0');
+  await page.mouse.move(720, 500);
+  await expect.poll(() => page.locator('#s-album .vctrl').evaluate((e) => getComputedStyle(e).opacity)).toBe('1');
   await page.screenshot({ path: `${SHOTS}/05-album-full.png` });
 
   // About Back returns (dead-button regression)
