@@ -28,6 +28,9 @@ header [data-tip]:hover::after,#s-albums [data-tip]:hover::after{top:calc(100% +
 .viewer img.slide{width:100%;height:380px;object-fit:contain;display:block}
 .viewer.small img.slide{height:220px}.viewer.full img.slide{height:70vh}
 .viewer:fullscreen{border:0;border-radius:0;background:var(--bg)}
+.viewer.pseudo-full{position:fixed;inset:0;z-index:100;border:0;border-radius:0;background:var(--bg)}
+.viewer.pseudo-full img.slide{height:100vh;height:100dvh}
+.viewer.pseudo-full .fscap{display:block}
 .fscap{display:none;position:absolute;left:25%;width:50%;bottom:76px;background:rgba(20,14,10,.82);border:1px solid rgba(255,255,255,.25);border-radius:14px;padding:12px 14px;color:#fff;z-index:5}
 .fscap .comment{white-space:pre-line}
 .fscap .exif{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
@@ -105,7 +108,7 @@ textarea{width:100%;min-height:90px}
 <section id="s-public" class="screen">
 <div class="viewer large" id="pviewer"><img id="pslide" class="slide fade" src="">
 <div id="pnoview" style="display:none;min-height:300px;place-items:center;text-align:center;padding:30px 16px;color:var(--ink);font-size:18px">This album is empty.</div>
-<div class="vbar"><span id="ptitle"></span><button class="cbtn" onclick="document.getElementById('pviewer').requestFullscreen()">⛶</button></div>
+<div class="vbar"><span id="ptitle"></span><button class="cbtn" onclick="fullP()" data-tip="Fullscreen">⛶</button></div>
 <div class="vctrl"><button class="cbtn" onclick="pstep(-1)">◀</button><button class="cbtn" id="ppBtn" data-tip="Play / pause" onclick="ptoggle()">▶</button><button class="cbtn" onclick="pstep(1)">▶</button><span class="dockseg" id="pvseg">Size <button data-s="small" onclick="psize('small')">S</button><button data-s="medium" onclick="psize('medium')">M</button><button data-s="large" onclick="psize('large')">L</button></span></div><div class="fscap" id="pfscap"><div class="comment" id="pfscapc"></div><div class="exif" id="pfscapx"></div></div></div>
 <!-- public sizes live in the control dock (prototype B winner, branch prototype/public-sizes) -->
 <div class="caption" id="pcapbox"><div class="comment" id="pcap"></div><div class="exif" id="pex"></div></div>
@@ -178,7 +181,8 @@ function jump(i){I=i;paint()}
 function toggleP(){if(T){clearInterval(T);T=null;$('playB').textContent='▶'}else{T=setInterval(()=>step(1),5000);$('playB').textContent='⏸'}}
 const VSIZE_CLS={small:'small',medium:'large',large:'full'};
 function vsize(s){if(!VSIZE_CLS[s])s='medium';try{localStorage.vsize=s}catch(e){}$('viewer').className='viewer '+VSIZE_CLS[s];document.querySelectorAll('#ovseg [data-s]').forEach(b=>b.classList.toggle('on',b.dataset.s===s))}
-function fullV(){const v=$('viewer');document.fullscreenElement?document.exitFullscreen():v.requestFullscreen()}
+function fullV(){const v=$('viewer');if(v.classList.contains('pseudo-full')){v.classList.remove('pseudo-full');return}if(document.fullscreenElement){document.exitFullscreen();return}const r=v.requestFullscreen||v.webkitRequestFullscreen;if(r)r.call(v);else v.classList.add('pseudo-full')}
+function fullP(){const v=$('pviewer');if(v.classList.contains('pseudo-full')){v.classList.remove('pseudo-full');return}if(document.fullscreenElement){document.exitFullscreen();return}const r=v.requestFullscreen||v.webkitRequestFullscreen;if(r)r.call(v);else v.classList.add('pseudo-full')}
 async function doUpload(){const fs=$('files').files;if(!fs.length)return alert('Pick files first');const fd=new FormData();for(const f of fs)fd.append('files',f);
  const r=await api(`/api/albums/${AID}/photos`,{method:'POST',body:fd});alert(`Uploaded ${r.uploaded}`);openAlbum(AID)}
 function zoomHtml(){return `<span style="margin-left:auto;white-space:nowrap"><button class="mini" onclick="capZoom(-0.1)" data-tip="Smaller text">A−</button> <button class="mini" onclick="capZoom(0.1)" data-tip="Larger text">A+</button></span>`}

@@ -107,6 +107,14 @@ test('owner flow on desktop', async ({ page }) => {
   // Tooltip hover (human eyeballs the shot)
   await page.hover('#themeBtn');
   await page.screenshot({ path: `${SHOTS}/07-tooltip.png` });
+  // iOS-style fallback: no Fullscreen API -> pseudo-fullscreen overlay toggles
+  await page.evaluate(() => { try{Element.prototype.requestFullscreen=null;Element.prototype.webkitRequestFullscreen=null}catch(e){} });
+  const vbx = await page.locator('#viewer').boundingBox();
+  await page.mouse.move(vbx.x + vbx.width / 2, vbx.y + 30);
+  await page.click('#s-album .vbar .cbtn');
+  await expect(page.locator('#viewer.pseudo-full')).toBeVisible();
+  await page.click('#s-album .vbar .cbtn');
+  await expect(page.locator('#viewer.pseudo-full')).toHaveCount(0);
 
   const link = (await page.locator('#alink').textContent()).trim();
   PUBLIC_PATH = new URL(link).pathname;
