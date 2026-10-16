@@ -43,6 +43,7 @@ check("whole image shown", "object-fit:contain" in html)
 check("fullscreen fills screen", ":fullscreen" in html)
 check("viewer blends with theme", ".viewer{background:transparent" in html)
 check("about links github", "github.com/laneyweb/memorees" in html)
+check("public sizes in control dock", "dockseg" in html)
 
-print(f"\n{23 - len(fails)}/23 passed")
+print(f"\n{24 - len(fails)}/24 passed")
 sys.exit(1 if fails else 0)

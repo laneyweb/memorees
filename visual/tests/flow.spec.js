@@ -92,9 +92,10 @@ test('public link with no login', async ({ browser }) => {
   await expect(page.locator('#ptitle')).toContainText('Visual album');
   await expect(page.locator('#pcap')).toContainText('line two');
   const before = await page.locator('#pslide').getAttribute('src');
-  await page.click('#s-public button:has-text("Large")');
+  await page.click('#pvseg button[data-s="large"]');
   await expect(page.locator('#pviewer.full')).toBeVisible();
-  await expect.poll(() => page.evaluate(() => localStorage.psize)).toBe('full');
+  await expect(page.locator('#pvseg button[data-s="large"].on')).toBeVisible();
+  await expect.poll(() => page.evaluate(() => localStorage.psize)).toBe('large');
   await page.click('#pviewer .vctrl button:has-text("▶")').catch(() => {});
   await page.locator('#pviewer').hover();
   await page.screenshot({ path: `${SHOTS}/08-public.png` });

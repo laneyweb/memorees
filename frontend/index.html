@@ -33,6 +33,9 @@ header [data-tip]:hover::after,#s-albums [data-tip]:hover::after{top:calc(100% +
 .vctrl{position:absolute;bottom:0;left:0;right:0;display:flex;gap:10px;justify-content:center;align-items:center;padding:12px;background:linear-gradient(transparent,rgba(0,0,0,.78));flex-wrap:wrap}
 .cbtn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:99px;min-width:48px;min-height:48px;font-size:18px;cursor:pointer}
 .cbtn:hover{background:rgba(255,255,255,.32);transform:scale(1.08)}
+.dockseg{display:flex;gap:4px;align-items:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);border-radius:99px;padding:4px 8px 4px 12px;color:#fff;font-size:13px}
+.dockseg button{background:transparent;border:0;color:#fff;font-weight:700;cursor:pointer;font-size:13px;padding:8px 10px;border-radius:99px;min-height:44px}
+.dockseg button.on{background:#fff;color:#000}
 .caption{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px;margin-top:12px}
 .comment{white-space:pre-line;line-height:1.5}
 .exif{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.pill{font-size:14px;border:1px solid var(--line);border-radius:99px;padding:5px 12px;background:var(--bg)}
@@ -90,8 +93,8 @@ textarea{width:100%;min-height:90px}
 <div class="viewer large" id="pviewer"><img id="pslide" class="slide fade" src="">
 <div id="pnoview" style="display:none;min-height:300px;place-items:center;text-align:center;padding:30px 16px;color:var(--ink);font-size:18px">📷 This album is empty.</div>
 <div class="vbar"><span id="ptitle"></span><button class="cbtn" onclick="document.getElementById('pviewer').requestFullscreen()">⛶</button></div>
-<div class="vctrl"><button class="cbtn" onclick="pstep(-1)">◀</button><button class="cbtn" id="ppBtn" data-tip="Play / pause" onclick="ptoggle()">▶</button><button class="cbtn" onclick="pstep(1)">▶</button></div></div>
-<div class="row" style="margin-top:10px"><span class="mut">View:</span><button class="btn" onclick="psize('small')" data-tip="Small preview">Small</button><button class="btn" onclick="psize('large')" data-tip="Large focus view">Medium</button><button class="btn" onclick="psize('full')" data-tip="Full theatre view">Large</button></div>
+<div class="vctrl"><button class="cbtn" onclick="pstep(-1)">◀</button><button class="cbtn" id="ppBtn" data-tip="Play / pause" onclick="ptoggle()">▶</button><button class="cbtn" onclick="pstep(1)">▶</button><span class="dockseg" id="pvseg">Size <button data-s="small" onclick="psize('small')">S</button><button data-s="medium" onclick="psize('medium')">M</button><button data-s="large" onclick="psize('large')">L</button></span></div></div>
+<!-- public sizes live in the control dock (prototype B winner, branch prototype/public-sizes) -->
 <div class="caption" id="pcapbox"><div class="comment" id="pcap"></div><div class="exif" id="pex"></div></div>
 <p class="mut">Readonly public link • Made with Memorees 💛</p></section>
 
@@ -163,14 +166,15 @@ async function loadSettings(){const s=await api('/api/settings');const L=[['show
  $('exbox').innerHTML=L.map(([k,l])=>`<label style="display:block;margin:6px 0"><input type="checkbox" data-k="${k}" ${s[k]?'checked':''}> ${l}</label>`).join('');$('sfont').value=s.font_default||'hand';show('settings')}
 async function saveSettings(){const b={};document.querySelectorAll('#exbox input').forEach(i=>b[i.dataset.k]=i.checked);b.font_default=$('sfont').value;await api('/api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});alert('Settings saved ✓')}
 async function pub(id){show('public');const d=await api('/api/p/'+id);PP=d.photos;PI=0;
- $('ptitle').textContent=`${d.album} • by ${d.author}`;{let ps='large';try{ps=localStorage.psize||'large'}catch(e){}$('pviewer').className='viewer '+ps}ppaint();
+ $('ptitle').textContent=`${d.album} • by ${d.author}`;{let ps='medium';try{ps=localStorage.psize||'medium'}catch(e){}ps={full:'large',large:'medium',small:'small'}[ps]||ps;psize(ps)}ppaint();
  $('pcapbox').className='caption '+(F[d.font]||'font-hand')}
 function ppaint(){if(!PP.length){$('pslide').style.display='none';$('pnoview').style.display='grid';$('pcap').textContent='Empty album.';return}$('pslide').style.display='';$('pnoview').style.display='none';const p=PP[PI];const el=$('pslide');el.src=p.src;el.className='slide fade';void el.offsetWidth;
  $('pcap').textContent=p.comment||'';$('pex').innerHTML=exPills(p.exif||{});$('ppBtn').textContent=PT?'⏸':'▶'}
 function pstep(d){PI=(PI+d+PP.length)%PP.length;ppaint()}
 /* psize lives with ptoggle above (with size memory) */
 function ptoggle(){if(PT){clearInterval(PT);PT=null;$('ppBtn').textContent='▶'}else{PT=setInterval(()=>pstep(1),5000);$('ppBtn').textContent='⏸'}}
-function psize(s){try{localStorage.psize=s}catch(e){}$('pviewer').className='viewer '+s}
+const PSIZE_CLS={small:'small',medium:'large',large:'full'};
+function psize(s){if(!PSIZE_CLS[s])s='medium';try{localStorage.psize=s}catch(e){}$('pviewer').className='viewer '+PSIZE_CLS[s];document.querySelectorAll('#pvseg [data-s]').forEach(b=>b.classList.toggle('on',b.dataset.s===s))}
 async function ver(){try{const v=await api('/api/version');$('ver').textContent=`Version ${v.version} • build ${v.build} • ${v.date}`}catch(e){$('ver').textContent='Version unknown (offline preview)'}}
 // swipe (tablet)
 [['viewer',d=>step(d)],['pviewer',d=>pstep(d)]].forEach(([id,fn])=>{let x=0;const v=$(id);if(!v)return;v.addEventListener('touchstart',e=>x=e.touches[0].clientX,{passive:true});v.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-x;if(Math.abs(dx)>40)fn(dx<0?1:-1)},{passive:true})});
