@@ -4,7 +4,7 @@ services:
     image: memorees:0.1.0
     container_name: memorees
     ports:
-      - "8000:8000"
+      - "${HOST_PORT:-8000}:8000"
     volumes:
       - ./data:/data
     environment:
