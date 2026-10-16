@@ -82,8 +82,8 @@ textarea{width:100%;min-height:90px}
 <div class="viewer small" id="viewer" style="margin-top:12px"><img id="slide" class="slide fade" src="">
 <div id="noview" style="display:none;min-height:220px;place-items:center;text-align:center;padding:30px 16px;color:var(--ink);font-size:18px">📷 No photos yet.<br><span style="font-size:14px;opacity:.8">Upload above to begin the slideshow.</span></div>
 <div class="vbar"><span id="vtitle"></span><span><button class="cbtn" onclick="fullV()" data-tip="Fullscreen">⛶</button></span></div>
-<div class="vctrl" id="vctrl"><button class="cbtn" onclick="step(-1)">◀</button><button class="cbtn" id="playB" data-tip="Play / pause" onclick="toggleP()">▶</button><button class="cbtn" onclick="step(1)">▶</button></div></div>
-<div class="row" style="margin-top:8px"><span class="mut">View:</span><button class="btn" onclick="vsize('small')">Small</button><button class="btn" onclick="vsize('large')">Medium</button><button class="btn" onclick="vsize('full')">Large</button></div>
+<div class="vctrl" id="vctrl"><button class="cbtn" onclick="step(-1)">◀</button><button class="cbtn" id="playB" data-tip="Play / pause" onclick="toggleP()">▶</button><button class="cbtn" onclick="step(1)">▶</button><span class="dockseg" id="ovseg">Size <button data-s="small" onclick="vsize('small')">S</button><button data-s="medium" onclick="vsize('medium')">M</button><button data-s="large" onclick="vsize('large')">L</button></span></div></div>
+<!-- owner sizes live in the control dock, mirroring the public view -->
 <div class="caption" id="capbox"><div class="comment" id="cap"></div><div class="exif" id="ex"></div></div>
 <div class="set"><b>Edit this photo's comment</b><textarea id="cedit" placeholder="Multiline comment for the currently shown photo…"></textarea>
 <p></p><button class="btn primary" onclick="saveComment()">💾 Save comment</button> <span class="mut" id="cmsg"></span></div>
@@ -144,7 +144,7 @@ async function submitAlbum(){const t=$('aname').value.trim();if(!t){$('amsg').te
 async function openAlbum(id){AID=id;const d=await api(`/api/albums/${id}/photos`);PH=d.photos;I=0;
  $('atitle').textContent='🏖️ '+d.album.title;$('alink').textContent=d.album.link;$('afont').value=d.album.font;$('atrans').value=d.album.transition;
  $('thumbs').innerHTML=PH.map((p,i)=>`<div class="card" style="cursor:pointer" onclick="jump(${i})"><img src="${p.src}"><div class="pad"><div class="mut">${(p.comment||'no comment').slice(0,60)}</div></div></div>`).join('');
- paint();{let vs='small';try{vs=localStorage.vsize||'small'}catch(e){}$('viewer').className='viewer '+vs}show('album')}
+ paint();{let vs='small';try{vs=localStorage.vsize||'small'}catch(e){}vs={small:'small',large:'medium',full:'large'}[vs]||vs;vsize(vs)}show('album')}
 function paint(){if(!PH.length){$('slide').style.display='none';$('noview').style.display='grid';$('vctrl').style.display='none';$('vtitle').textContent='Empty album';$('cap').textContent='Upload photos to begin.';$('ex').innerHTML='';return}
  $('slide').style.display='';$('noview').style.display='none';$('vctrl').style.display='';
  const p=PH[I];const tr=$('atrans').value;const el=$('slide');el.src=p.src;el.className='slide '+(tr==='slide'?'sl':tr==='zoom'?'zm':tr==='none'?'':'fade');void el.offsetWidth;
@@ -155,7 +155,8 @@ function paint(){if(!PH.length){$('slide').style.display='none';$('noview').styl
 function step(d){if(!PH.length)return;I=(I+d+PH.length)%PH.length;paint()}
 function jump(i){I=i;paint()}
 function toggleP(){if(T){clearInterval(T);T=null;$('playB').textContent='▶'}else{T=setInterval(()=>step(1),5000);$('playB').textContent='⏸'}}
-function vsize(s){try{localStorage.vsize=s}catch(e){}$('viewer').className='viewer '+s}
+const VSIZE_CLS={small:'small',medium:'large',large:'full'};
+function vsize(s){if(!VSIZE_CLS[s])s='medium';try{localStorage.vsize=s}catch(e){}$('viewer').className='viewer '+VSIZE_CLS[s];document.querySelectorAll('#ovseg [data-s]').forEach(b=>b.classList.toggle('on',b.dataset.s===s))}
 function fullV(){const v=$('viewer');document.fullscreenElement?document.exitFullscreen():v.requestFullscreen()}
 async function doUpload(){const fs=$('files').files;if(!fs.length)return alert('Pick files first');const fd=new FormData();for(const f of fs)fd.append('files',f);
  const r=await api(`/api/albums/${AID}/photos`,{method:'POST',body:fd});alert(`Uploaded ${r.uploaded}`);openAlbum(AID)}

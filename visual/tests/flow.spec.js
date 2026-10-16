@@ -55,8 +55,9 @@ test('owner flow on desktop', async ({ page }) => {
   // Settings + font/transition persist
   await page.selectOption('#afont', 'serif');
   await expect(page.locator('#capbox.font-serif')).toBeVisible();
-  await page.click('#s-album button:has-text("Medium")');
-  await expect.poll(() => page.evaluate(() => localStorage.vsize)).toBe('large');
+  await page.click('#ovseg button[data-s="medium"]');
+  await expect(page.locator('#ovseg button[data-s="medium"].on')).toBeVisible();
+  await expect.poll(() => page.evaluate(() => localStorage.vsize)).toBe('medium');
   await page.screenshot({ path: `${SHOTS}/05-album-full.png` });
 
   // About Back returns (dead-button regression)

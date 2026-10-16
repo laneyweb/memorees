@@ -44,6 +44,7 @@ check("fullscreen fills screen", ":fullscreen" in html)
 check("viewer blends with theme", ".viewer{background:transparent" in html)
 check("about links github", "github.com/laneyweb/memorees" in html)
 check("public sizes in control dock", "dockseg" in html)
+check("owner sizes in control dock", "#ovseg" in html)
 
-print(f"\n{24 - len(fails)}/24 passed")
+print(f"\n{25 - len(fails)}/25 passed")
 sys.exit(1 if fails else 0)
