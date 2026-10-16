@@ -6,7 +6,7 @@ services:
     ports:
       - "${HOST_PORT:-8000}:8000"
     volumes:
-      - ./data:/data
+      - "${DATA_DIR:-./data}:/data"
     environment:
       ALLOW_SIGNUP: "${ALLOW_SIGNUP:-true}"   # set false in .env to lock registration
       BASE_URL: "${BASE_URL:-http://localhost:8000}"  # public address; used for share links
