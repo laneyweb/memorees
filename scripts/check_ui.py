@@ -42,6 +42,7 @@ check("size memory (public)", "localStorage.psize" in html)
 check("whole image shown", "object-fit:contain" in html)
 check("fullscreen fills screen", ":fullscreen" in html)
 check("viewer blends with theme", ".viewer{background:transparent" in html)
+check("about links github", "github.com/laneyweb/memorees" in html)
 
-print(f"\n{22 - len(fails)}/22 passed")
+print(f"\n{23 - len(fails)}/23 passed")
 sys.exit(1 if fails else 0)

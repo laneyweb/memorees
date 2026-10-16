@@ -13,6 +13,7 @@ header{position:sticky;top:0;z-index:10;display:flex;gap:10px;align-items:center
 .btn{border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:12px;padding:8px 14px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;min-height:44px}
 .btn:hover{transform:translateY(-2px);box-shadow:var(--sh)}.btn.primary{background:var(--ink);color:var(--bg)}.btn.on{background:var(--ink);color:var(--bg)}
 input,select,textarea{background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:10px;font-size:15px}
+a{color:var(--acc)}
 .wrap{max-width:1000px;margin:0 auto;padding:18px}
 .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
 .card{background:var(--card);border:2px solid var(--line);border-radius:18px;overflow:visible;transition:transform .18s,box-shadow .18s}
@@ -108,7 +109,8 @@ textarea{width:100%;min-height:90px}
 <p class="mut" id="amsg"></p></div></div>
 <section id="s-about" class="screen"><div class="card"><div class="pad">
 <h2>About Memorees</h2><p id="ver">…</p>
-<p class="mut">Lightweight Docker stack for homelabs: FastAPI + SQLite, JPG/PNG/HEIF, EXIF + taken/upload dates, public readonly slideshows. V1. Hosted (non-Docker) mode planned later.</p>
+<p><a href="https://github.com/laneyweb/memorees" target="_blank" rel="noopener">💻 GitHub: laneyweb/memorees</a></p>
+<p class="mut">Memorees keeps your memories close — memory albums with photos and the stories behind them, shared as slideshows with the people you love.</p>
 <button class="btn" onclick="show(PREV)">← Back</button></div></div></section>
 
 </div>
