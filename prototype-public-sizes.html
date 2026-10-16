@@ -1,0 +1,93 @@
+<!-- PROTOTYPE - throwaway, not production. Public-view size-control placement, ?variant=A|B|C -->
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Public sizes — prototype (throwaway)</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff8f0;--card:#fff;--ink:#2b2118;--mut:#8a7a6d;--acc:#ff5d5d;--line:#f0e2d3;--sh:0 8px 30px rgba(0,0,0,.08)}
+[data-theme="dark"]{--bg:#171310;--card:#221c17;--ink:#f5e9dc;--mut:#a89888;--acc:#ff7a7a;--line:#3a2f26}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,sans-serif}
+header{display:flex;gap:10px;align-items:center;padding:12px 18px;background:var(--card);border-bottom:2px solid var(--line)}
+.logo{font-weight:800;font-size:22px}.logo span{color:var(--acc)}
+.badge{font-size:11px;background:var(--acc);color:#fff;padding:3px 8px;border-radius:99px}
+.btn{border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:12px;padding:8px 14px;font-weight:700;cursor:pointer;min-height:44px}
+.btn.on{background:var(--ink);color:var(--bg)}
+.wrap{max-width:900px;margin:0 auto;padding:18px}
+.variant{display:none}.variant.on{display:block}
+.viewer{background:transparent;color:#fff;border-radius:18px;overflow:hidden;position:relative;border:3px solid var(--ink)}
+.viewer img.slide{width:100%;height:380px;object-fit:contain;display:block;background:transparent}
+.viewer.small img.slide{height:220px}.viewer.medium img.slide{height:380px}.viewer.large img.slide{height:70vh}
+.vbar{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 14px;background:linear-gradient(rgba(0,0,0,.6),transparent);font-size:14px}
+.vctrl{position:absolute;bottom:0;left:0;right:0;display:flex;gap:10px;justify-content:center;padding:12px;background:linear-gradient(transparent,rgba(0,0,0,.78))}
+.cbtn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:99px;min-width:48px;min-height:48px;font-size:18px;cursor:pointer}
+.seg{display:flex;border:1px solid rgba(255,255,255,.5);border-radius:99px;overflow:hidden}
+.seg button{background:transparent;border:0;color:#fff;padding:8px 12px;font-weight:700;cursor:pointer;font-size:13px}
+.seg button.on{background:#fff;color:#000}
+.dockseg{display:flex;gap:6px;align-items:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);border-radius:99px;padding:4px 10px;color:#fff;font-size:13px}
+.dockseg button{background:transparent;border:0;color:#fff;font-weight:700;cursor:pointer;font-size:13px;padding:6px 8px;border-radius:99px}
+.dockseg button.on{background:#fff;color:#000}
+.fab{position:absolute;right:12px;bottom:76px;width:52px;height:52px;border-radius:50%;background:var(--card);color:var(--ink);border:2px solid var(--ink);font-size:22px;cursor:pointer;box-shadow:var(--sh)}
+.pop{position:absolute;right:12px;bottom:136px;background:var(--card);color:var(--ink);border:2px solid var(--ink);border-radius:14px;padding:10px;display:none;flex-direction:column;gap:6px;box-shadow:var(--sh)}
+.pop.on{display:flex}
+.caption{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px;margin-top:12px}
+.comment{white-space:pre-line;font-family:Caveat,cursive;font-size:22px}
+.exif{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.pill{font-size:14px;border:1px solid var(--line);border-radius:99px;padding:5px 12px;background:var(--bg)}
+.mut{color:var(--mut)}.state{margin-top:12px;font-size:13px}
+#switcher{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);border-radius:99px;padding:8px;display:flex;gap:12px;align-items:center;z-index:99}
+#switcher button{background:transparent;border:1px solid currentColor;color:inherit;border-radius:99px;width:36px;height:36px;cursor:pointer;font-size:18px}
+</style>
+</head>
+<body>
+<header><div class="logo">📸 Memo<span>rees</span></div><div class="badge">PROTOTYPE throwaway</div><div style="flex:1"></div>
+<button class="btn" onclick="document.documentElement.dataset.theme=document.documentElement.dataset.theme==='light'?'dark':'light'">Theme</button></header>
+<div class="wrap">
+<p class="mut">Question: where should Small / Medium / Large live on the <b>public</b> link? Comment stays directly under the image in all variants. Flip with the bottom bar or ← → keys.</p>
+
+<section class="variant" id="v-A">
+<h2>A — In the top bar</h2>
+<div class="viewer medium" id="vwA"><img class="slide" src="https://picsum.photos/seed/books/1000/700">
+<div class="vbar"><span>🏖️ Beach day! • by <b>Maya</b></span><span style="display:flex;gap:8px;align-items:center"><span class="seg" data-seg="A"><button data-s="small">S</button><button data-s="medium" class="on">M</button><button data-s="large">L</button></span><button class="cbtn">⛶</button></span></div>
+<div class="vctrl"><button class="cbtn">◀</button><button class="cbtn">▶</button><button class="cbtn">▶</button></div></div>
+<div class="caption"><div class="comment">Salt in the air, best day ever!
+We stayed till sunset. 🐚 — Maya</div><div class="exif"><span class="pill">camera: Canon R6</span><span class="pill">taken: 04 Jul 2026, 18:12</span><span class="pill">uploaded: 10 Oct 2026, 09:41</span></div></div>
+<p class="state" id="stA"></p>
+</section>
+
+<section class="variant" id="v-B">
+<h2>B — In the bottom control dock</h2>
+<div class="viewer medium" id="vwB"><img class="slide" src="https://picsum.photos/seed/books/1000/700">
+<div class="vbar"><span>🏖️ Beach day! • by <b>Maya</b></span><button class="cbtn">⛶</button></div>
+<div class="vctrl"><button class="cbtn">◀</button><button class="cbtn">▶</button><button class="cbtn">▶</button><span class="dockseg" data-seg="B">Size <button data-s="small">S</button><button data-s="medium" class="on">M</button><button data-s="large">L</button></span></div></div>
+<div class="caption"><div class="comment">Salt in the air, best day ever!
+We stayed till sunset. 🐚 — Maya</div><div class="exif"><span class="pill">camera: Canon R6</span><span class="pill">taken: 04 Jul 2026, 18:12</span><span class="pill">uploaded: 10 Oct 2026, 09:41</span></div></div>
+<p class="state" id="stB"></p>
+</section>
+
+<section class="variant" id="v-C">
+<h2>C — Floating button with popover</h2>
+<div class="viewer medium" id="vwC"><img class="slide" src="https://picsum.photos/seed/books/1000/700">
+<div class="vbar"><span>🏖️ Beach day! • by <b>Maya</b></span><button class="cbtn">⛶</button></div>
+<div class="vctrl"><button class="cbtn">◀</button><button class="cbtn">▶</button><button class="cbtn">▶</button></div>
+<button class="fab" id="fabC" title="View size">⤢</button>
+<div class="pop" id="popC" data-seg="C"><button class="btn" data-s="small">Small</button><button class="btn on" data-s="medium">Medium</button><button class="btn" data-s="large">Large</button></div></div>
+<div class="caption"><div class="comment">Salt in the air, best day ever!
+We stayed till sunset. 🐚 — Maya</div><div class="exif"><span class="pill">camera: Canon R6</span><span class="pill">taken: 04 Jul 2026, 18:12</span><span class="pill">uploaded: 10 Oct 2026, 09:41</span></div></div>
+<p class="state" id="stC"></p>
+</section>
+<p class="mut" style="margin-bottom:80px">State is in-memory only. Winner gets folded into the real public view; this file stays on its branch.</p>
+</div>
+<div id="switcher"><button onclick="cycle(-1)">←</button><span id="vlabel"></span><button onclick="cycle(1)">→</button></div>
+<script>
+const names={A:'A (top bar)',B:'B (control dock)',C:'C (floating button)'},order=['A','B','C'];
+const sizes={A:'medium',B:'medium',C:'medium'};
+function cur(){return new URLSearchParams(location.search).get('variant')||'A'}
+function show(v){if(!order.includes(v))v='A';document.querySelectorAll('.variant').forEach(e=>e.classList.remove('on'));document.getElementById('v-'+v).classList.add('on');document.getElementById('vlabel').textContent=names[v];paint(v);try{const u=new URL(location);u.searchParams.set('variant',v);history.replaceState(null,'',u)}catch(e){}}
+function paint(v){document.getElementById('vw'+v).className='viewer '+sizes[v];document.getElementById('st'+v).textContent='State → variant: '+v+', size: '+sizes[v]+' (comment sits directly under the image in all variants)';}
+function cycle(d){let i=order.indexOf(cur());show(order[(i+d+order.length)%order.length])}
+document.querySelectorAll('[data-seg]').forEach(seg=>{const v=seg.dataset.seg;seg.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{sizes[v]=b.dataset.s;seg.querySelectorAll('[data-s]').forEach(x=>x.classList.remove('on'));b.classList.add('on');paint(v)})});
+document.getElementById('fabC').onclick=()=>document.getElementById('popC').classList.toggle('on');
+addEventListener('keydown',e=>{if(e.key==='ArrowRight')cycle(1);if(e.key==='ArrowLeft')cycle(-1)});
+show(cur());
+</script></body></html>
