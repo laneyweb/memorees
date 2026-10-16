@@ -74,6 +74,13 @@ test('owner flow on desktop', async ({ page }) => {
   await expect(page.locator('#delPhotoBtn')).toContainText('confirm');
   await page.click('#delPhotoBtn');
   await expect(page.locator('#noview')).toBeVisible();
+  // re-seed one photo so the public/tablet tests have content
+  await page.setInputFiles('#files', path.join(__dirname, 'fixtures', 'probe.png'));
+  await page.click('text=⬆ Upload');
+  await expect(page.locator('#noview')).toBeHidden({ timeout: 15000 });
+  await page.fill('#cedit', 'line one\nline two');
+  await page.click('text=💾 Save comment');
+  await expect(page.locator('#cap')).toContainText('line two');
   await page.screenshot({ path: `${SHOTS}/05-album-full.png` });
 
   // About Back returns (dead-button regression)
