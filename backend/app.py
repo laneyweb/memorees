@@ -397,6 +397,25 @@ async def edit_photo(pid: int, body: dict, session: str | None = Cookie(default=
     return {"ok": True}
 
 
+@app.delete("/api/photos/{pid}")
+def del_photo(pid: int, session: str | None = Cookie(default=None)):
+    u = need(me(session))
+    c = db()
+    r = c.execute("SELECT p.* FROM photos p JOIN albums a ON a.id=p.album_id WHERE p.id=? AND a.owner=?",
+                  (pid, u["id"])).fetchone()
+    if not r:
+        c.close()
+        raise HTTPException(404, "photo not found")
+    c.execute("DELETE FROM photos WHERE id=?", (pid,))
+    c.commit()
+    c.close()
+    stem = Path(r["preview"]).stem
+    for f in ORIG.glob(stem + ".*"):
+        f.unlink(missing_ok=True)
+    (PREV / r["preview"]).unlink(missing_ok=True)
+    return {"ok": True}
+
+
 @app.get("/api/p/{puuid}")
 def public(puuid: str):
     c = db()

@@ -68,6 +68,12 @@ test('owner flow on desktop', async ({ page }) => {
   const vbox2 = await page.locator('#viewer').boundingBox();
   await page.mouse.move(vbox2.x + vbox2.width / 2, vbox2.y + 40);
   await expect.poll(() => page.locator('#s-album .vctrl').evaluate((e) => getComputedStyle(e).opacity)).toBe('1');
+  await page.click('#capbox button:has-text("A+")');
+  await expect.poll(() => page.evaluate(() => localStorage.capz)).toBe('1.1');
+  await page.click('#delPhotoBtn');
+  await expect(page.locator('#delPhotoBtn')).toContainText('confirm');
+  await page.click('#delPhotoBtn');
+  await expect(page.locator('#noview')).toBeVisible();
   await page.screenshot({ path: `${SHOTS}/05-album-full.png` });
 
   // About Back returns (dead-button regression)

@@ -40,7 +40,7 @@ header [data-tip]:hover::after,#s-albums [data-tip]:hover::after{top:calc(100% +
 .dockseg button.on{background:#fff;color:#000}
 .caption{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px;margin-top:12px}
 .comment{white-space:pre-line;line-height:1.5}
-.exif{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.pill{font-size:14px;border:1px solid var(--line);border-radius:99px;padding:5px 12px;background:var(--bg)}
+.exif{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.pill{font-size:calc(14px * var(--capz,1));border:1px solid var(--line);border-radius:99px;padding:5px 12px;background:var(--bg)}
 .set{background:var(--card);border:2px dashed var(--acc);border-radius:16px;padding:16px;margin-top:16px}
 .font-hand{font-family:Caveat,cursive;font-size:22px}.font-sans{font-family:Inter,sans-serif}.font-serif{font-family:Lora,serif;font-size:18px}
 .row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}.wrap .row{margin-bottom:16px}header .row{margin-bottom:0}
@@ -86,9 +86,9 @@ textarea{width:100%;min-height:90px}
 <div class="vbar"><span id="vtitle"></span><span><button class="cbtn" onclick="fullV()" data-tip="Fullscreen">⛶</button></span></div>
 <div class="vctrl" id="vctrl"><button class="cbtn" onclick="step(-1)">◀</button><button class="cbtn" id="playB" data-tip="Play / pause" onclick="toggleP()">▶</button><button class="cbtn" onclick="step(1)">▶</button><span class="dockseg" id="ovseg">Size <button data-s="small" onclick="vsize('small')">S</button><button data-s="medium" onclick="vsize('medium')">M</button><button data-s="large" onclick="vsize('large')">L</button></span></div></div>
 <!-- owner sizes live in the control dock, mirroring the public view -->
-<div class="caption" id="capbox"><div class="comment" id="cap"></div><div class="exif" id="ex"></div></div>
+<div class="caption" id="capbox"><div class="comment" id="cap"></div><div class="exif" id="ex"></div><span style="float:right;margin-top:8px"><button class="btn" onclick="capZoom(-0.1)" data-tip="Smaller text">A−</button> <button class="btn" onclick="capZoom(0.1)" data-tip="Larger text">A+</button></span><div style="clear:both"></div></div>
 <div class="set"><b>Edit this photo's comment</b><textarea id="cedit" placeholder="Multiline comment for the currently shown photo…"></textarea>
-<p></p><button class="btn primary" onclick="saveComment()">💾 Save comment</button> <span class="mut" id="cmsg"></span></div>
+<p></p><button class="btn primary" onclick="saveComment()">💾 Save comment</button> <button class="btn" id="delPhotoBtn" onclick="delCurrent(this)">Delete this photo</button> <span class="mut" id="cmsg"></span></div>
 <div class="grid" id="thumbs" style="margin-top:12px"></div></section>
 
 <section id="s-public" class="screen">
@@ -97,7 +97,7 @@ textarea{width:100%;min-height:90px}
 <div class="vbar"><span id="ptitle"></span><button class="cbtn" onclick="document.getElementById('pviewer').requestFullscreen()">⛶</button></div>
 <div class="vctrl"><button class="cbtn" onclick="pstep(-1)">◀</button><button class="cbtn" id="ppBtn" data-tip="Play / pause" onclick="ptoggle()">▶</button><button class="cbtn" onclick="pstep(1)">▶</button><span class="dockseg" id="pvseg">Size <button data-s="small" onclick="psize('small')">S</button><button data-s="medium" onclick="psize('medium')">M</button><button data-s="large" onclick="psize('large')">L</button></span></div></div>
 <!-- public sizes live in the control dock (prototype B winner, branch prototype/public-sizes) -->
-<div class="caption" id="pcapbox"><div class="comment" id="pcap"></div><div class="exif" id="pex"></div></div>
+<div class="caption" id="pcapbox"><div class="comment" id="pcap"></div><div class="exif" id="pex"></div><span style="float:right;margin-top:8px"><button class="btn" onclick="capZoom(-0.1)" data-tip="Smaller text">A−</button> <button class="btn" onclick="capZoom(0.1)" data-tip="Larger text">A+</button></span><div style="clear:both"></div></div>
 <p class="mut">Readonly public link • Made with Memorees 💛</p></section>
 
 <section id="s-settings" class="screen"><div class="card"><div class="pad">
@@ -124,7 +124,7 @@ let ME=null,AID=null,PH=[],I=0,T=null,PP=[],PI=0,PT=null;
 const $=id=>document.getElementById(id);
 const F={hand:'font-hand',sans:'font-sans',serif:'font-serif'};
 let PREV='albums';
-function show(n){const cur=(document.querySelector('.screen.on')||{id:''}).id.replace('s-','');if(cur&&cur!=='about')PREV=cur;document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$('s-'+n).classList.add('on');if(n==='about')ver()}
+function show(n){const cur=(document.querySelector('.screen.on')||{id:''}).id.replace('s-','');if(cur&&cur!=='about')PREV=cur;document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$('s-'+n).classList.add('on');applyCapZoom();if(n==='about')ver()}
 function exPills(e){return Object.entries(e).map(([k,v])=>`<span class="pill">${k}: ${v}</span>`).join('')}
 async function api(p,o={}){const r=await fetch(p,o);if(!r.ok)throw new Error(await r.text());return r.json()}
 async function boot(){document.documentElement.dataset.theme=localStorage.theme||'light';
@@ -145,14 +145,14 @@ function closeAlbumModal(){$('albumModal').classList.remove('on')}
 async function submitAlbum(){const t=$('aname').value.trim();if(!t){$('amsg').textContent='Type a name first.';return}const r=await api('/api/albums',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:t})});closeAlbumModal();openAlbum(r.id)}
 async function openAlbum(id){AID=id;const d=await api(`/api/albums/${id}/photos`);PH=d.photos;I=0;
  $('atitle').textContent='🏖️ '+d.album.title;$('alink').textContent=d.album.link;$('afont').value=d.album.font;$('atrans').value=d.album.transition;
- $('thumbs').innerHTML=PH.map((p,i)=>`<div class="card" style="cursor:pointer" onclick="jump(${i})"><img src="${p.src}"><div class="pad"><div class="mut">${(p.comment||'no comment').slice(0,60)}</div></div></div>`).join('');
+ $('thumbs').innerHTML=PH.map((p,i)=>`<div class="card" style="cursor:pointer" onclick="jump(${i})"><img src="${p.src}"><div class="pad"><div class="mut">${(p.comment||'no comment').slice(0,60)}</div><p></p><button class="btn" onclick="event.stopPropagation();delPhoto(${p.id},this)">Delete</button></div></div>`).join('');
  paint();{let vs='small';try{vs=localStorage.vsize||'small'}catch(e){}vs={small:'small',large:'medium',full:'large'}[vs]||vs;vsize(vs)}show('album')}
 function paint(){if(!PH.length){$('slide').style.display='none';$('noview').style.display='grid';$('vctrl').style.display='none';$('vtitle').textContent='Empty album';$('cap').textContent='Upload photos to begin.';$('ex').innerHTML='';return}
  $('slide').style.display='';$('noview').style.display='none';$('vctrl').style.display='';
  const p=PH[I];const tr=$('atrans').value;const el=$('slide');el.src=p.src;el.className='slide '+(tr==='slide'?'sl':tr==='zoom'?'zm':tr==='none'?'':'fade');void el.offsetWidth;
  $('vtitle').textContent=`${$('atitle').textContent} • ${I+1}/${PH.length}`;
  $('cap').textContent=p.comment||'(no comment yet — write one below)';if(paint._i!==I){$('cedit').value=p.comment||'';paint._i=I}
- $('ex').innerHTML=exPills(p.exif||{});$('capbox').className='caption '+F[$('afont').value||'hand'];
+ $('ex').innerHTML=exPills(p.exif||{});$('capbox').className='caption '+F[$('afont').value||'hand'];applyCapZoom();
  $('playB').textContent=T?'⏸':'▶'}
 function step(d){if(!PH.length)return;I=(I+d+PH.length)%PH.length;paint()}
 function jump(i){I=i;paint()}
@@ -162,7 +162,10 @@ function vsize(s){if(!VSIZE_CLS[s])s='medium';try{localStorage.vsize=s}catch(e){
 function fullV(){const v=$('viewer');document.fullscreenElement?document.exitFullscreen():v.requestFullscreen()}
 async function doUpload(){const fs=$('files').files;if(!fs.length)return alert('Pick files first');const fd=new FormData();for(const f of fs)fd.append('files',f);
  const r=await api(`/api/albums/${AID}/photos`,{method:'POST',body:fd});alert(`Uploaded ${r.uploaded}`);openAlbum(AID)}
-async function saveComment(){if(!PH[I])return;await api(`/api/photos/${PH[I].id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({comment:$('cedit').value})});$('cmsg').textContent='saved ✓';PH[I].comment=$('cedit').value;$('cap').textContent=$('cedit').value;setTimeout(()=>$('cmsg').textContent='',1500)}
+function capZoom(d){let z=+(parseFloat(localStorage.capz||'1')||1);z=Math.min(1.5,Math.max(0.8,+(z+d).toFixed(1)));try{localStorage.capz=z}catch(e){}applyCapZoom()}
+function applyCapZoom(){const z=parseFloat(localStorage.capz||'1')||1;document.documentElement.style.setProperty('--capz',z);const base={'font-hand':22,'font-sans':16,'font-serif':18};['capbox','pcapbox'].forEach(bid=>{const box=$(bid);if(!box)return;const cls=(box.className.split(' ').find(c=>c.indexOf('font-')===0)||'font-sans');const com=box.querySelector('.comment');if(com)com.style.fontSize=(base[cls]*z)+'px'})}
+async function delPhoto(pid,btn){if(!btn.dataset.armed){btn.dataset.armed='1';const t=btn.textContent;btn.textContent='Tap again to confirm';setTimeout(()=>{btn.dataset.armed='';btn.textContent=t},3000);return}await api(`/api/photos/${pid}`,{method:'DELETE'});openAlbum(AID)}
+async function delCurrent(btn){if(!PH[I])return;if(!btn.dataset.armed){btn.dataset.armed='1';btn.textContent='Tap again to confirm';setTimeout(()=>{btn.dataset.armed='';btn.textContent='Delete this photo'},3000);return}await api(`/api/photos/${PH[I].id}`,{method:'DELETE'});btn.dataset.armed='';btn.textContent='Delete this photo';openAlbum(AID)}async function saveComment(){if(!PH[I])return;await api(`/api/photos/${PH[I].id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({comment:$('cedit').value})});$('cmsg').textContent='saved ✓';PH[I].comment=$('cedit').value;$('cap').textContent=$('cedit').value;setTimeout(()=>$('cmsg').textContent='',1500)}
 async function saveAlbum(){await api(`/api/albums/${AID}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({font:$('afont').value,transition:$('atrans').value})});paint()}
 async function regen(){const r=await api(`/api/albums/${AID}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({regen:true})});$('alink').textContent=r.link;alert('New link: '+r.link)}
 async function loadSettings(){const s=await api('/api/settings');const L=[['show_camera','Camera'],['show_gps','GPS'],['show_taken','Taken date'],['show_uploaded','Upload date']];
@@ -172,7 +175,7 @@ async function pub(id){show('public');const d=await api('/api/p/'+id);PP=d.photo
  $('ptitle').textContent=`${d.album} • by ${d.author}`;{let ps='medium';try{ps=localStorage.psize||'medium'}catch(e){}ps={full:'large',large:'medium',small:'small'}[ps]||ps;psize(ps)}ppaint();
  $('pcapbox').className='caption '+(F[d.font]||'font-hand')}
 function ppaint(){if(!PP.length){$('pslide').style.display='none';$('pnoview').style.display='grid';$('pcap').textContent='Empty album.';return}$('pslide').style.display='';$('pnoview').style.display='none';const p=PP[PI];const el=$('pslide');el.src=p.src;el.className='slide fade';void el.offsetWidth;
- $('pcap').textContent=p.comment||'';$('pex').innerHTML=exPills(p.exif||{});$('ppBtn').textContent=PT?'⏸':'▶'}
+ $('pcap').textContent=p.comment||'';$('pex').innerHTML=exPills(p.exif||{});applyCapZoom();$('ppBtn').textContent=PT?'⏸':'▶'}
 function pstep(d){PI=(PI+d+PP.length)%PP.length;ppaint()}
 /* psize lives with ptoggle above (with size memory) */
 function ptoggle(){if(PT){clearInterval(PT);PT=null;$('ppBtn').textContent='▶'}else{PT=setInterval(()=>pstep(1),5000);$('ppBtn').textContent='⏸'}}

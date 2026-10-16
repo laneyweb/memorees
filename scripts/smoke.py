@@ -150,6 +150,14 @@ def main():
         except Exception as e:
             check("05 public loads anon-shape", False, f"http={s} {e}")
 
+        anon = Client(a.base)
+        s, _ = anon._req("DELETE", "/api/photos/999999")
+        check("05 anon delete refused", s == 401, f"http={s}")
+        if pid:
+            s, _ = c._req("DELETE", f"/api/photos/{pid}")
+            check("08 photo delete", s == 200, f"http={s}")
+            s, b = c.get(f"/api/albums/{aid}/photos")
+            check("08 photo gone", s == 200 and json.loads(b)["photos"] == [], f"http={s}")
         # cleanup
         s, _ = c._req("DELETE", f"/api/albums/{aid}")
         check("03 album delete (cleanup)", s == 200, f"http={s}")

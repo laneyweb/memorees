@@ -42,6 +42,8 @@ machine-checkable half so any host can be re-verified after upgrades.
 20. As an owner, I want an About page showing version, build hash and date, so that bug reports can name the build.
 21. As an owner, I want one compose file with a single data volume, so that backup is copying one folder.
 22. As an owner, I want access through Nginx Proxy Manager, so that the homelab stays on standard ports.
+23. As an owner, I want A− / A+ buttons scaling the comment plus tags, so that I can read comfortably.
+24. As an owner, I want to delete a photo from an album, so that mistakes and duplicates can go.
 
 ## Implementation Decisions
 
