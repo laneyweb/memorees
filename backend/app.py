@@ -167,14 +167,14 @@ def fmt_when(s: str) -> str:
 
 def filter_exif(full: dict, settings: dict, taken_at: str, uploaded_at: str) -> dict:
     f: dict = {}
+    if settings.get("show_uploaded"):
+        f["uploaded"] = fmt_when(uploaded_at)
+    if settings.get("show_taken") and taken_at:
+        f["taken"] = fmt_when(taken_at)
     if settings.get("show_camera") and full.get("camera"):
         f["camera"] = full["camera"]
     if settings.get("show_gps") and full.get("gps"):
         f["gps"] = full["gps"]
-    if settings.get("show_taken") and taken_at:
-        f["taken"] = fmt_when(taken_at)
-    if settings.get("show_uploaded"):
-        f["uploaded"] = fmt_when(uploaded_at)
     return f
 
 
