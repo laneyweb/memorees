@@ -107,14 +107,15 @@ textarea{width:100%;min-height:90px}
 <section id="s-about" class="screen"><div class="card"><div class="pad">
 <h2>About Memorees</h2><p id="ver">…</p>
 <p class="mut">Lightweight Docker stack for homelabs: FastAPI + SQLite, JPG/PNG/HEIF, EXIF + taken/upload dates, public readonly slideshows. V1. Hosted (non-Docker) mode planned later.</p>
-<button class="btn" onclick="history.back()">← Back</button></div></div></section>
+<button class="btn" onclick="show(PREV)">← Back</button></div></div></section>
 
 </div>
 <script>
 let ME=null,AID=null,PH=[],I=0,T=null,PP=[],PI=0,PT=null;
 const $=id=>document.getElementById(id);
 const F={hand:'font-hand',sans:'font-sans',serif:'font-serif'};
-function show(n){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$('s-'+n).classList.add('on');if(n==='about')ver()}
+let PREV='albums';
+function show(n){const cur=(document.querySelector('.screen.on')||{id:''}).id.replace('s-','');if(cur&&cur!=='about')PREV=cur;document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$('s-'+n).classList.add('on');if(n==='about')ver()}
 function exPills(e){return Object.entries(e).map(([k,v])=>`<span class="pill">${k}: ${v}</span>`).join('')}
 async function api(p,o={}){const r=await fetch(p,o);if(!r.ok)throw new Error(await r.text());return r.json()}
 async function boot(){document.documentElement.dataset.theme=localStorage.theme||'light';
