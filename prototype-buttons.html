@@ -23,32 +23,26 @@ header{display:flex;gap:10px;align-items:center;padding:12px 18px;background:var
 .exif{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.pill{font-size:14px;border:1px solid var(--line);border-radius:99px;padding:5px 12px;background:var(--bg)}
 .mut{color:var(--mut)}.state{margin:12px 0 80px;font-size:13px}
 /* A: current outline */
-[data-v="A"] .btn{border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:12px;padding:6px 10px;font-weight:700;cursor:pointer;min-height:40px}
-[data-v="A"] .btn.primary{background:var(--ink);color:var(--bg)}
-[data-v="A"] .cbtn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:99px;min-width:36px;min-height:36px;font-size:15px;cursor:pointer}
-[data-v="A"] .dockseg{display:flex;gap:4px;align-items:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);border-radius:99px;padding:4px 8px 4px 12px;color:#fff;font-size:13px}
-[data-v="A"] .dockseg button{background:transparent;border:0;color:#fff;font-weight:700;cursor:pointer;font-size:12px;padding:4px 6px;border-radius:99px;min-height:36px}
-[data-v="A"] .dockseg button.on{background:#fff;color:#000}
-[data-v="A"] .mini{border:0;background:transparent;color:var(--mut);font-size:13px;font-weight:800;padding:2px 6px;cursor:pointer;min-height:26px}
-[data-v="A"] .thumbx{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;border:2px solid var(--ink);background:var(--card);color:var(--ink);font-size:16px;font-weight:800;cursor:pointer}
-/* B: filled */
-[data-v="B"] .btn{border:0;background:var(--ink);color:var(--bg);border-radius:99px;padding:8px 18px;font-weight:700;cursor:pointer;min-height:40px}
-[data-v="B"] .btn.primary{background:linear-gradient(135deg,#FBBF24,#F97316,#EF4444);color:#fff}
-[data-v="B"] .cbtn{background:#fff;border:0;color:#000;border-radius:99px;min-width:40px;min-height:40px;font-size:16px;font-weight:800;cursor:pointer}
-[data-v="B"] .dockseg{display:flex;gap:4px;align-items:center;background:#fff;border-radius:99px;padding:4px 8px 4px 12px;color:#000;font-size:13px;font-weight:700}
-[data-v="B"] .dockseg button{background:transparent;border:0;color:#000;font-weight:700;cursor:pointer;font-size:12px;padding:6px 9px;border-radius:99px;min-height:36px}
-[data-v="B"] .dockseg button.on{background:#000;color:#fff}
-[data-v="B"] .mini{border:0;background:var(--line);color:var(--ink);font-size:13px;font-weight:800;padding:4px 10px;cursor:pointer;border-radius:99px;min-height:28px}
-[data-v="B"] .thumbx{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;border:0;background:var(--ink);color:var(--bg);font-size:16px;font-weight:800;cursor:pointer}
-/* C: text minimal */
-[data-v="C"] .btn{border:0;background:transparent;color:var(--ink);font-weight:700;cursor:pointer;padding:6px 4px;min-height:40px;text-decoration:underline;text-underline-offset:4px}
-[data-v="C"] .btn.primary{text-decoration:none;background:var(--acc);color:#fff;border-radius:8px;padding:6px 14px}
-[data-v="C"] .cbtn{background:transparent;border:1px solid #fff;color:#fff;border-radius:8px;min-width:36px;min-height:36px;font-size:15px;cursor:pointer}
-[data-v="C"] .dockseg{display:flex;gap:2px;align-items:center;color:#fff;font-size:13px}
-[data-v="C"] .dockseg button{background:transparent;border:0;border-bottom:2px solid transparent;color:#fff;font-weight:700;cursor:pointer;font-size:12px;padding:6px 4px;min-height:36px}
-[data-v="C"] .dockseg button.on{border-bottom-color:#fff}
-[data-v="C"] .mini{border:0;background:transparent;color:var(--mut);font-size:13px;font-weight:600;padding:2px 4px;cursor:pointer;min-height:26px;text-decoration:underline;text-underline-offset:3px}
-[data-v="C"] .thumbx{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;border:1px solid var(--mut);background:transparent;color:var(--mut);font-size:16px;cursor:pointer}
+.btn{border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:12px;padding:6px 10px;font-weight:700;cursor:pointer;min-height:40px}
+ .btn.primary{background:var(--ink);color:var(--bg)}
+ .cbtn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:99px;min-width:36px;min-height:36px;font-size:15px;cursor:pointer}
+ .dockseg{display:flex;gap:4px;align-items:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);border-radius:99px;padding:4px 8px 4px 12px;color:#fff;font-size:13px}
+ .dockseg button{background:transparent;border:0;color:#fff;font-weight:700;cursor:pointer;font-size:12px;padding:4px 6px;border-radius:99px;min-height:36px}
+ .dockseg button.on{background:#fff;color:#000}
+ .mini{border:0;background:transparent;color:var(--mut);font-size:13px;font-weight:800;padding:2px 6px;cursor:pointer;min-height:26px}
+ .thumbx{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;border:2px solid var(--ink);background:var(--card);color:var(--ink);font-size:16px;font-weight:800;cursor:pointer}
+/* B: same look, 32px compact */
+[data-v="B"] .btn{min-height:32px;padding:4px 8px;font-size:14px}
+[data-v="B"] .cbtn{min-width:32px;min-height:32px;font-size:14px}
+[data-v="B"] .dockseg button{min-height:32px}
+[data-v="B"] .mini{min-height:24px}
+[data-v="B"] .thumbx{width:26px;height:26px;font-size:14px}
+/* C: same look, 28px slim */
+[data-v="C"] .btn{min-height:28px;padding:2px 8px;font-size:14px}
+[data-v="C"] .cbtn{min-width:28px;min-height:28px;font-size:13px}
+[data-v="C"] .dockseg button{min-height:28px}
+[data-v="C"] .mini{min-height:22px;font-size:12px}
+[data-v="C"] .thumbx{width:24px;height:24px;font-size:13px}
 #switcher{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);border-radius:99px;padding:8px;display:flex;gap:12px;align-items:center;z-index:99}
 #switcher button{background:transparent;border:1px solid currentColor;color:inherit;border-radius:99px;width:36px;height:36px;cursor:pointer;font-size:18px}
 </style>
@@ -58,7 +52,7 @@ header{display:flex;gap:10px;align-items:center;padding:12px 18px;background:var
 <button class="btn" onclick="document.documentElement.dataset.theme=document.documentElement.dataset.theme==='light'?'dark':'light'">Light / Dark</button>
 <button class="btn">About</button></header>
 <div class="wrap">
-<p class="mut">Question: one button language for <b>every</b> button type? Flip with the bottom bar or ← → keys. State line names the active system.</p>
+<p class="mut">Question: same look, which <b>height</b>? A 40px regular, B 32px compact, C 28px slim. Flip with the bottom bar or ← → keys. State line names the height.</p>
 <div class="row"><button class="btn primary">+ New album</button><button class="btn">Settings</button><button class="btn">Logout</button></div>
 <div class="viewer"><img class="slide" src="https://picsum.photos/seed/books/800/500">
 <div class="vctrl"><button class="cbtn">◀</button><button class="cbtn">▶</button><button class="cbtn">▶</button><span class="dockseg">Size <button>S</button><button class="on">M</button><button>L</button></span></div></div>
@@ -68,9 +62,9 @@ header{display:flex;gap:10px;align-items:center;padding:12px 18px;background:var
 </div>
 <div id="switcher"><button onclick="cycle(-1)">←</button><span id="vlabel"></span><button onclick="cycle(1)">→</button></div>
 <script>
-const names={A:'A (outline now)',B:'B (filled pills)',C:'C (text minimal)'},order=['A','B','C'];
+const names={A:'A (40 regular)',B:'B (32 compact)',C:'C (28 slim)'},order=['A','B','C'];
 function cur(){return new URLSearchParams(location.search).get('variant')||'A'}
-function show(v){if(!order.includes(v))v='A';document.body.dataset.v=v;document.getElementById('vlabel').textContent=names[v];document.getElementById('st').textContent='State → system: '+v+'. All buttons restyle together; pick one.';try{const u=new URL(location);u.searchParams.set('variant',v);history.replaceState(null,'',u)}catch(e){}}
+function show(v){if(!order.includes(v))v='A';document.body.dataset.v=v;document.getElementById('vlabel').textContent=names[v];document.getElementById('st').textContent='State → height: '+v+'. Same look everywhere; pick a height.';try{const u=new URL(location);u.searchParams.set('variant',v);history.replaceState(null,'',u)}catch(e){}}
 function cycle(d){let i=order.indexOf(cur());show(order[(i+d+order.length)%order.length])}
 addEventListener('keydown',e=>{if(e.key==='ArrowRight')cycle(1);if(e.key==='ArrowLeft')cycle(-1)});
 show(cur());
