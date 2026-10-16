@@ -4,6 +4,7 @@ These are the words we use. Use them in code, tickets, and docs. Do not use
 other words for the same thing.
 
 - **Owner**: the person with an account. The owner makes albums and uploads photos.
+- **Logo**: the brand mark (layered photo frames plus spark) with the Memor/ees wordmark. It links home.
 - **Viewer**: a person who opens a public link. A viewer needs no account and cannot change data.
 - **Memory Album (Album)**: a named set of photos with one owner. An album has a font and a transition.
 - **Photo**: one image in an album. Formats: JPG, PNG, HEIF.

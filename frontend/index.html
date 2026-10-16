@@ -2,14 +2,15 @@
 <html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Memorees 📸</title>
+<title>Memorees</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='4' y1='4' x2='28' y2='28' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23FBBF24'/%3E%3Cstop offset='0.5' stop-color='%23F97316'/%3E%3Cstop offset='1' stop-color='%23EF4444'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='7' y='4' width='18' height='22' rx='3.5' transform='rotate(-10 7 4)' fill='%23334155' opacity='0.6'/%3E%3Crect x='9' y='7' width='18' height='22' rx='3.5' transform='rotate(6 9 7)' fill='%230F172A' stroke='url(%23g)' stroke-width='2'/%3E%3Cpath d='M19 14C19 16.5 21.5 17 21.5 17C21.5 17 19 17.5 19 20C19 17.5 16.5 17 16.5 17C16.5 17 19 16.5 19 14Z' fill='%23FBBF24'/%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Inter:wght@400;600;800&family=Lora:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#fff8f0;--card:#fff;--ink:#2b2118;--mut:#8a7a6d;--acc:#ff5d5d;--line:#f0e2d3;--sh:0 8px 30px rgba(0,0,0,.08)}
 [data-theme="dark"]{--bg:#171310;--card:#221c17;--ink:#f5e9dc;--mut:#a89888;--acc:#ff7a7a;--line:#3a2f26;--sh:0 8px 30px rgba(0,0,0,.5)}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif}
 header{position:sticky;top:0;z-index:10;display:flex;gap:10px;align-items:center;padding:12px 18px;background:var(--card);border-bottom:2px solid var(--line);flex-wrap:wrap}
-.logo{font-weight:800;font-size:22px}.logo span{color:var(--acc)}
+.logo{font-weight:800;font-size:22px;color:var(--ink)}
 .btn{border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:12px;padding:8px 14px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;min-height:44px}
 .btn:hover{transform:translateY(-2px);box-shadow:var(--sh)}.btn.primary{background:var(--ink);color:var(--bg)}.btn.on{background:var(--ink);color:var(--bg)}
 input,select,textarea{background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:10px;font-size:15px}
@@ -33,14 +34,15 @@ header [data-tip]:hover::after,#s-albums [data-tip]:hover::after{top:calc(100% +
 .vctrl{position:absolute;bottom:0;left:0;right:0;display:flex;gap:10px;justify-content:center;align-items:center;padding:12px;background:linear-gradient(transparent,rgba(0,0,0,.78));flex-wrap:wrap}
 .viewer .vbar,.viewer .vctrl{transition:opacity .4s}
 .viewer.idle .vbar,.viewer.idle .vctrl{opacity:0;pointer-events:none}
-.cbtn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:99px;min-width:48px;min-height:48px;font-size:18px;cursor:pointer}
+.cbtn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:99px;min-width:40px;min-height:40px;font-size:16px;cursor:pointer}
+@media(pointer:coarse){.cbtn{min-width:48px;min-height:48px;font-size:18px}.dockseg button{min-height:48px}}
 .cbtn:hover{background:rgba(255,255,255,.32);transform:scale(1.08)}
 .mini{border:0;background:transparent;color:var(--mut);font-size:13px;font-weight:800;padding:2px 6px;cursor:pointer;border-radius:8px;min-height:26px}
 .mini:hover{color:var(--ink);background:var(--line)}
 .thumbx{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:50%;border:2px solid var(--ink);background:var(--card);color:var(--ink);font-size:18px;font-weight:800;cursor:pointer;line-height:1;z-index:2}
 .thumbx.armed{background:var(--acc);color:#fff;border-color:var(--acc)}
 .dockseg{display:flex;gap:4px;align-items:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);border-radius:99px;padding:4px 8px 4px 12px;color:#fff;font-size:13px}
-.dockseg button{background:transparent;border:0;color:#fff;font-weight:700;cursor:pointer;font-size:13px;padding:8px 10px;border-radius:99px;min-height:44px}
+.dockseg button{background:transparent;border:0;color:#fff;font-weight:700;cursor:pointer;font-size:12px;padding:6px 8px;border-radius:99px;min-height:40px}
 .dockseg button.on{background:#fff;color:#000}
 .caption{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px;margin-top:12px}
 .comment{white-space:pre-line;line-height:1.5}
@@ -59,7 +61,7 @@ textarea{width:100%;min-height:90px}
 </head>
 <body>
 <header>
-<div class="logo" onclick="goHome()" style="cursor:pointer" data-tip="Home">📸 Memo<span>rees</span></div>
+<div class="logo" onclick="goHome()" style="cursor:pointer;display:flex;align-items:center;gap:8px" data-tip="Home"><svg id="logoMark" width="34" height="34" viewBox="0 0 64 64" fill="none" role="img" aria-label="Memorees home"><defs><linearGradient id="mmg" x1="10" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse"><stop stop-color="#FBBF24"/><stop offset="0.5" stop-color="#F97316"/><stop offset="1" stop-color="#EF4444"/></linearGradient></defs><rect x="14" y="8" width="36" height="42" rx="6" transform="rotate(-10 14 8)" style="fill:var(--line);stroke:var(--mut)" stroke-width="2.5" opacity="0.9"/><rect x="18" y="14" width="36" height="42" rx="6" transform="rotate(6 18 14)" style="fill:var(--card)" stroke="url(#mmg)" stroke-width="3.2"/><rect x="22" y="18" width="28" height="24" rx="4" transform="rotate(6 22 18)" fill="url(#mmg)" fill-opacity="0.18"/><path d="M38 27C38 31 42 32 42 32C42 32 38 33 38 37C38 33 34 32 34 32C34 32 38 31 38 27Z" fill="#FBBF24"/><line x1="26" y1="48" x2="44" y2="50" style="stroke:var(--mut)" stroke-width="2.5" stroke-linecap="round"/></svg><span style="font-size:22px">Memor<span style="background:linear-gradient(135deg,#FBBF24,#F97316,#EF4444);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800">ees</span></span></div>
 <div class="row" id="nav" style="flex:1"></div>
 <button class="btn" id="themeBtn" data-tip="Toggle light / dark theme">🌞/🌙</button>
 <button class="btn" onclick="show('about')">About</button>

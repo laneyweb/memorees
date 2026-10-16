@@ -22,6 +22,7 @@ test('owner flow on desktop', async ({ page }) => {
   await page.fill('#p', 'visualpass1');
   await page.click('text=Sign up');
   await expect(page.locator('#s-albums.on')).toBeVisible();
+  await expect(page.locator('#logoMark')).toBeVisible();
   await page.screenshot({ path: `${SHOTS}/02-albums-empty.png` });
 
   // New-album modal (form, never a system dialog)
