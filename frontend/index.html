@@ -15,9 +15,9 @@ header{position:sticky;top:0;z-index:10;display:flex;gap:10px;align-items:center
 input,select,textarea{background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:10px;font-size:15px}
 .wrap{max-width:1000px;margin:0 auto;padding:18px}
 .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
-.card{background:var(--card);border:2px solid var(--line);border-radius:18px;overflow:hidden;transition:transform .18s,box-shadow .18s}
+.card{background:var(--card);border:2px solid var(--line);border-radius:18px;overflow:visible;transition:transform .18s,box-shadow .18s}
 .card:hover{transform:translateY(-4px);box-shadow:var(--sh)}
-.card img{width:100%;height:180px;object-fit:cover;display:block}
+.card img{width:100%;height:180px;object-fit:cover;display:block;border-radius:15px 15px 0 0}
 .polaroid{transform:rotate(-1.2deg)}.polaroid:nth-child(even){transform:rotate(1.2deg)}.polaroid:hover{transform:rotate(0) scale(1.02)}
 .pad{padding:12px}.mut{color:var(--mut);font-size:13px}
 [data-tip]{position:relative}[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);background:var(--ink);color:var(--bg);font-size:12px;padding:6px 10px;border-radius:8px;white-space:nowrap;z-index:5}
@@ -40,6 +40,9 @@ input,select,textarea{background:var(--card);color:var(--ink);border:2px solid v
 @media(max-width:1024px){.viewer img.slide{height:300px}.g3{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}}
 @media(max-width:700px){.grid{grid-template-columns:1fr 1fr}.viewer img.slide{height:240px}.card img{height:130px}}
 textarea{width:100%;min-height:90px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;place-items:center;z-index:50;padding:16px}
+.modal.on{display:grid}
+.mbox{background:var(--card);color:var(--ink);border:2px solid var(--ink);border-radius:18px;padding:20px;width:min(440px,94vw);box-shadow:var(--sh)}
 </style>
 </head>
 <body>
@@ -58,7 +61,7 @@ textarea{width:100%;min-height:90px}
 <p class="mut" id="authmsg"></p></div></div></section>
 
 <section id="s-albums" class="screen"><div class="row">
-<h2 style="flex:1">Your albums</h2><button class="btn primary" onclick="newAlbum()" data-tip="Create a memory album">+ New album</button>
+<h2 style="flex:1">Your albums</h2><button class="btn primary" onclick="openAlbumModal()" data-tip="Create a memory album">+ New album</button>
 <button class="btn" onclick="show('settings')" data-tip="EXIF, theme and font defaults">⚙️ Settings</button><button class="btn" onclick="doLogout()">Logout</button></div>
 <div class="grid" id="albums"></div></section>
 
@@ -92,6 +95,12 @@ textarea{width:100%;min-height:90px}
 <p></p><div class="row"><span>Default font</span><select id="sfont"><option value="hand">Handwritten</option><option value="sans">Modern sans</option><option value="serif">Serif bookish</option></select>
 <button class="btn primary" onclick="saveSettings()">Save</button><button class="btn" onclick="show('albums')">Done</button></div></div></div></section>
 
+<div class="modal" id="albumModal" onclick="if(event.target===this)closeAlbumModal()"><div class="mbox">
+<h3 style="margin-top:0">New memory album 📸</h3>
+<label class="mut" for="aname">Album name</label>
+<input id="aname" placeholder="e.g. Beach day!" maxlength="80" style="width:100%" onkeydown="if(event.key==='Enter')submitAlbum();if(event.key==='Escape')closeAlbumModal()">
+<p></p><div class="row"><button class="btn primary" onclick="submitAlbum()">Create album</button><button class="btn" onclick="closeAlbumModal()">Cancel</button></div>
+<p class="mut" id="amsg"></p></div></div>
 <section id="s-about" class="screen"><div class="card"><div class="pad">
 <h2>About Memorees</h2><p id="ver">…</p>
 <p class="mut">Lightweight Docker stack for homelabs: FastAPI + SQLite, JPG/PNG/HEIF, EXIF + taken/upload dates, public readonly slideshows. V1. Hosted (non-Docker) mode planned later.</p>
@@ -118,7 +127,9 @@ async function albumsTab(){show('albums');await loadAlbums()}
 async function loadAlbums(){const a=await api('/api/albums');$('albums').innerHTML=a.map(x=>`<div class="card polaroid" style="cursor:pointer" onclick="openAlbum(${x.id})" data-tip="${x.count} photos • click to open">
  ${x.cover?`<img src="${x.cover}">`:`<div style="height:180px;display:grid;place-items:center;font-size:48px">📷</div>`}
  <div class="pad"><b>${x.title}</b><div class="mut">${x.count} photos • 🔗 public link ready</div></div></div>`).join('')||'<p class="mut">No albums yet — hit + New album.</p>'}
-async function newAlbum(){const t=prompt('Album name?','Beach day!');if(!t)return;const r=await api('/api/albums',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:t})});openAlbum(r.id)}
+function openAlbumModal(){$('amsg').textContent='';$('aname').value='';$('albumModal').classList.add('on');setTimeout(()=>$('aname').focus(),50)}
+function closeAlbumModal(){$('albumModal').classList.remove('on')}
+async function submitAlbum(){const t=$('aname').value.trim();if(!t){$('amsg').textContent='Type a name first.';return}const r=await api('/api/albums',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:t})});closeAlbumModal();openAlbum(r.id)}
 async function openAlbum(id){AID=id;const d=await api(`/api/albums/${id}/photos`);PH=d.photos;I=0;
  $('atitle').textContent='🏖️ '+d.album.title;$('alink').textContent=d.album.link;$('afont').value=d.album.font;$('atrans').value=d.album.transition;
  $('thumbs').innerHTML=PH.map((p,i)=>`<div class="card" style="cursor:pointer" onclick="jump(${i})"><img src="${p.src}"><div class="pad"><div class="mut">${(p.comment||'no comment').slice(0,60)}</div></div></div>`).join('');
