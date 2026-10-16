@@ -11,7 +11,7 @@
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif}
 header{position:sticky;top:0;z-index:10;display:flex;gap:10px;align-items:center;padding:12px 18px;background:var(--card);border-bottom:2px solid var(--line);flex-wrap:wrap}
 .logo{font-weight:800;font-size:22px;color:var(--ink)}
-.btn{border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:12px;padding:8px 14px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;min-height:44px}
+.btn{border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:12px;padding:6px 10px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;min-height:40px}
 .btn:hover{transform:translateY(-2px);box-shadow:var(--sh)}.btn.primary{background:var(--ink);color:var(--bg)}.btn.on{background:var(--ink);color:var(--bg)}
 input,select,textarea{background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:10px;font-size:15px}
 a{color:var(--acc)}
@@ -34,17 +34,18 @@ header [data-tip]:hover::after,#s-albums [data-tip]:hover::after{top:calc(100% +
 .vctrl{position:absolute;bottom:0;left:0;right:0;display:flex;gap:10px;justify-content:center;align-items:center;padding:12px;background:linear-gradient(transparent,rgba(0,0,0,.78));flex-wrap:wrap}
 .viewer .vbar,.viewer .vctrl{transition:opacity .4s}
 .viewer.idle .vbar,.viewer.idle .vctrl{opacity:0;pointer-events:none}
-.cbtn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:99px;min-width:40px;min-height:40px;font-size:16px;cursor:pointer}
-@media(pointer:coarse){.cbtn{min-width:48px;min-height:48px;font-size:18px}.dockseg button{min-height:48px}}
+.cbtn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:99px;min-width:36px;min-height:36px;font-size:15px;cursor:pointer}
+@media(pointer:coarse){.btn{min-height:44px}.cbtn{min-width:48px;min-height:48px;font-size:18px}.dockseg button{min-height:48px}.thumbx{width:34px;height:34px}}
 .cbtn:hover{background:rgba(255,255,255,.32);transform:scale(1.08)}
 .mini{border:0;background:transparent;color:var(--mut);font-size:13px;font-weight:800;padding:2px 6px;cursor:pointer;border-radius:8px;min-height:26px}
 .mini:hover{color:var(--ink);background:var(--line)}
-.thumbx{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:50%;border:2px solid var(--ink);background:var(--card);color:var(--ink);font-size:18px;font-weight:800;cursor:pointer;line-height:1;z-index:2}
+.thumbx{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;border:2px solid var(--ink);background:var(--card);color:var(--ink);font-size:16px;font-weight:800;cursor:pointer;line-height:1;z-index:2}
 .thumbx.armed{background:var(--acc);color:#fff;border-color:var(--acc)}
 .dockseg{display:flex;gap:4px;align-items:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);border-radius:99px;padding:4px 8px 4px 12px;color:#fff;font-size:13px}
-.dockseg button{background:transparent;border:0;color:#fff;font-weight:700;cursor:pointer;font-size:12px;padding:6px 8px;border-radius:99px;min-height:40px}
+.dockseg button{background:transparent;border:0;color:#fff;font-weight:700;cursor:pointer;font-size:12px;padding:4px 6px;border-radius:99px;min-height:36px}
 .dockseg button.on{background:#fff;color:#000}
-.caption{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px;margin-top:12px}
+.caption{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px;margin-top:12px;position:relative}
+#editBtn{position:absolute;top:8px;right:8px}
 .comment{white-space:pre-line;line-height:1.5}
 .exif{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.pill{font-size:calc(14px * var(--capz,1));border:1px solid var(--line);border-radius:99px;padding:5px 12px;background:var(--bg)}
 .set{background:var(--card);border:2px dashed var(--acc);border-radius:16px;padding:16px;margin-top:16px}
@@ -92,9 +93,7 @@ textarea{width:100%;min-height:90px}
 <div class="vbar"><span id="vtitle"></span><span><button class="cbtn" onclick="fullV()" data-tip="Fullscreen">⛶</button></span></div>
 <div class="vctrl" id="vctrl"><button class="cbtn" onclick="step(-1)">◀</button><button class="cbtn" id="playB" data-tip="Play / pause" onclick="toggleP()">▶</button><button class="cbtn" onclick="step(1)">▶</button><span class="dockseg" id="ovseg">Size <button data-s="small" onclick="vsize('small')">S</button><button data-s="medium" onclick="vsize('medium')">M</button><button data-s="large" onclick="vsize('large')">L</button></span></div></div>
 <!-- owner sizes live in the control dock, mirroring the public view -->
-<div class="caption" id="capbox"><div class="comment" id="cap"></div><div class="exif" id="ex"></div></div>
-<div class="set"><b>Edit this photo's comment</b><textarea id="cedit" placeholder="Multiline comment for the currently shown photo…"></textarea>
-<p></p><button class="btn primary" onclick="saveComment()">Save comment</button> <button class="btn" id="delPhotoBtn" onclick="delCurrent(this)">Delete this photo</button> <span class="mut" id="cmsg"></span></div>
+<div class="caption" id="capbox"><button class="mini" id="editBtn" onclick="startEdit()" data-tip="Edit comment">Edit</button><div class="comment" id="cap"></div><div class="exif" id="ex"></div></div>
 <div class="grid" id="thumbs" style="margin-top:12px"></div></section>
 
 <section id="s-public" class="screen">
@@ -153,12 +152,12 @@ async function submitAlbum(){const t=$('aname').value.trim();if(!t){$('amsg').te
 async function openAlbum(id){AID=id;const d=await api(`/api/albums/${id}/photos`);PH=d.photos;I=0;
  $('atitle').textContent=d.album.title;$('alink').textContent=d.album.link;$('afont').value=d.album.font;$('atrans').value=d.album.transition;
  $('thumbs').innerHTML=PH.map((p,i)=>`<div class="card" style="cursor:pointer" onclick="jump(${i})"><img src="${p.src}"><button class="thumbx" onclick="event.stopPropagation();delPhoto(${p.id},this)" data-tip="Delete photo">×</button><div class="pad"><div class="mut">${(p.comment||'no comment').slice(0,60)}</div></div></div>`).join('');
- paint._i=-1;paint();{let vs='small';try{vs=localStorage.vsize||'small'}catch(e){}vs={small:'small',large:'medium',full:'large'}[vs]||vs;vsize(vs)}show('album')}
+ paint();{let vs='small';try{vs=localStorage.vsize||'small'}catch(e){}vs={small:'small',large:'medium',full:'large'}[vs]||vs;vsize(vs)}show('album')}
 function paint(){if(!PH.length){$('slide').style.display='none';$('noview').style.display='grid';$('vctrl').style.display='none';$('vtitle').textContent='Empty album';$('cap').textContent='Upload photos to begin.';$('ex').innerHTML='';return}
  $('slide').style.display='';$('noview').style.display='none';$('vctrl').style.display='';
  const p=PH[I];const tr=$('atrans').value;const el=$('slide');el.src=p.src;el.className='slide '+(tr==='slide'?'sl':tr==='zoom'?'zm':tr==='none'?'':'fade');void el.offsetWidth;
  $('vtitle').textContent=`${$('atitle').textContent} • ${I+1}/${PH.length}`;
- $('cap').textContent=p.comment||'(no comment yet — write one below)';if(paint._i!==I){$('cedit').value=p.comment||'';paint._i=I}
+ $('cap').textContent=p.comment||'(no comment yet — write one below)';
  $('ex').innerHTML=exPills(p.exif||{})+zoomHtml();$('capbox').className='caption '+F[$('afont').value||'hand'];applyCapZoom();
  $('playB').textContent=T?'⏸':'▶'}
 function step(d){if(!PH.length)return;I=(I+d+PH.length)%PH.length;paint()}
@@ -173,7 +172,8 @@ function zoomHtml(){return `<span style="margin-left:auto;white-space:nowrap"><b
 function capZoom(d){let z=+(parseFloat(localStorage.capz||'1')||1);z=Math.min(1.5,Math.max(0.8,+(z+d).toFixed(1)));try{localStorage.capz=z}catch(e){}applyCapZoom()}
 function applyCapZoom(){const z=parseFloat(localStorage.capz||'1')||1;document.documentElement.style.setProperty('--capz',z);const base={'font-hand':22,'font-sans':16,'font-serif':18};['capbox','pcapbox'].forEach(bid=>{const box=$(bid);if(!box)return;const cls=(box.className.split(' ').find(c=>c.indexOf('font-')===0)||'font-sans');const com=box.querySelector('.comment');if(com)com.style.fontSize=(base[cls]*z)+'px'})}
 async function delPhoto(pid,btn){if(!btn.dataset.armed){btn.dataset.armed='1';btn.textContent='?';btn.classList.add('armed');setTimeout(()=>{if(btn.isConnected){btn.dataset.armed='';btn.textContent='×';btn.classList.remove('armed')}},3000);return}await api(`/api/photos/${pid}`,{method:'DELETE'});openAlbum(AID)}
-async function delCurrent(btn){if(!PH[I])return;if(!btn.dataset.armed){btn.dataset.armed='1';btn.textContent='Tap again to confirm';setTimeout(()=>{btn.dataset.armed='';btn.textContent='Delete this photo'},3000);return}await api(`/api/photos/${PH[I].id}`,{method:'DELETE'});btn.dataset.armed='';btn.textContent='Delete this photo';openAlbum(AID)}async function saveComment(){if(!PH[I])return;await api(`/api/photos/${PH[I].id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({comment:$('cedit').value})});$('cmsg').textContent='saved';PH[I].comment=$('cedit').value;$('cap').textContent=$('cedit').value;setTimeout(()=>$('cmsg').textContent='',1500)}
+function startEdit(){const p=PH[I];if(!p)return;const cap=$('cap');cap.innerHTML='';const t=document.createElement('textarea');t.id='cedit2';t.style.width='100%';t.style.minHeight='90px';t.value=p.comment||'';const row=document.createElement('div');row.className='row';row.style.marginTop='8px';const s=document.createElement('button');s.className='btn primary';s.textContent='Save';s.onclick=saveInline;const c=document.createElement('button');c.className='btn';c.textContent='Cancel';c.onclick=()=>paint();row.append(s,c);cap.append(t,row);t.focus()}
+async function saveInline(){const v=$('cedit2').value;await api(`/api/photos/${PH[I].id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({comment:v})});PH[I].comment=v;paint()}
 async function saveAlbum(){await api(`/api/albums/${AID}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({font:$('afont').value,transition:$('atrans').value})});paint()}
 async function regen(){const r=await api(`/api/albums/${AID}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({regen:true})});$('alink').textContent=r.link;alert('New link: '+r.link)}
 async function loadSettings(){const s=await api('/api/settings');const L=[['show_camera','Camera'],['show_gps','GPS'],['show_taken','Taken date'],['show_uploaded','Upload date']];

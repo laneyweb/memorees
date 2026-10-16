@@ -39,20 +39,21 @@ test('owner flow on desktop', async ({ page }) => {
   await expect(page.locator('#slide')).toBeHidden();
   await page.screenshot({ path: `${SHOTS}/04-album-empty.png` });
 
-  // Upload + multiline comment round-trip
+  // Upload + inline comment edit round-trip
   await page.setInputFiles('#files', path.join(__dirname, 'fixtures', 'probe.png'));
   await page.click('button:has-text("Upload")');
   await expect(page.locator('#noview')).toBeHidden({ timeout: 15000 });
-  await expect(page.locator('#cedit')).toHaveValue('');
-  await page.fill('#cedit', 'line one\nline two');
-  await page.click('text=Save comment');
+  await page.click('#editBtn');
+  await page.fill('#cedit2', 'line one\nline two');
+  await page.click('#cap button:has-text("Save")');
   await expect(page.locator('#cap')).toContainText('line two');
   const ex = await page.locator('#ex').textContent();
   expect(ex).toMatch(/uploaded: \d{2} \w{3} \d{4}/);
-  // Draft must survive autoplay refreshes (regression: interval wiped typing)
-  await page.fill('#cedit', 'draft in progress');
-  await page.waitForTimeout(6500);
-  await expect(page.locator('#cedit')).toHaveValue('draft in progress');
+  // Cancel abandons the draft
+  await page.click('#editBtn');
+  await page.fill('#cedit2', 'abandoned draft');
+  await page.click('#cap button:has-text("Cancel")');
+  await expect(page.locator('#cap')).toContainText('line two');
 
   // Settings + font/transition persist
   await page.selectOption('#afont', 'serif');
@@ -72,19 +73,19 @@ test('owner flow on desktop', async ({ page }) => {
   await expect.poll(() => page.locator('#s-album .vctrl').evaluate((e) => getComputedStyle(e).opacity)).toBe('1');
   await page.click('#capbox button:has-text("A+")');
   await expect.poll(() => page.evaluate(() => localStorage.capz)).toBe('1.1');
-  await page.click('#delPhotoBtn');
-  await expect(page.locator('#delPhotoBtn')).toContainText('confirm');
-  await page.click('#delPhotoBtn');
+  await page.click('.thumbx');
+  await expect(page.locator('.thumbx.armed')).toBeVisible();
+  await page.click('.thumbx.armed');
   await expect(page.locator('#noview')).toBeVisible();
   // re-seed one photo so the public/tablet tests have content
   await page.setInputFiles('#files', path.join(__dirname, 'fixtures', 'probe.png'));
   await page.click('button:has-text("Upload")');
   await expect(page.locator('#noview')).toBeHidden({ timeout: 15000 });
-  await expect(page.locator('#cedit')).toHaveValue('');
-  await page.fill('#cedit', 'line one\nline two');
-  await page.click('text=Save comment');
-  await expect(page.locator('#cap')).toContainText('line two');
   await expect(page.locator('#s-album.on')).toBeVisible();
+  await page.click('#editBtn');
+  await page.fill('#cedit2', 'line one\nline two');
+  await page.click('#cap button:has-text("Save")');
+  await expect(page.locator('#cap')).toContainText('line two');
   await page.screenshot({ path: `${SHOTS}/05-album-full.png` });
 
   // About Back returns (dead-button regression)
