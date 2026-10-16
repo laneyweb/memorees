@@ -71,9 +71,9 @@ def init():
 init()
 
 DEFAULT_SETTINGS = {
-    "show_camera": True, "show_lens": True, "show_exposure": True,
+    "show_camera": True,
     "show_gps": False, "show_taken": True, "show_uploaded": True,
-    "show_dims": True, "font_default": "hand", "theme": "light",
+    "font_default": "hand", "theme": "light",
 }
 
 
@@ -149,23 +149,32 @@ def read_exif(path: Path) -> dict:
     return out
 
 
+def fmt_when(s: str) -> str:
+    """EXIF/ISO stamp -> '16 Oct 2026, 12:22' for humans."""
+    s = (s or "").strip()
+    if not s:
+        return ""
+    d = None
+    try:
+        d = datetime.fromisoformat(s)
+    except ValueError:
+        try:
+            d = datetime.strptime(s, "%Y:%m:%d %H:%M:%S")
+        except ValueError:
+            return s
+    return d.strftime("%d %b %Y, %H:%M")
+
+
 def filter_exif(full: dict, settings: dict, taken_at: str, uploaded_at: str) -> dict:
     f: dict = {}
     if settings.get("show_camera") and full.get("camera"):
         f["camera"] = full["camera"]
-    if settings.get("show_lens") and full.get("lens"):
-        f["lens"] = full["lens"]
-    parts = [full.get(k) for k in ("focal", "aperture", "shutter", "iso") if full.get(k)]
-    if settings.get("show_exposure") and parts:
-        f["exposure"] = " ".join(parts)
     if settings.get("show_gps") and full.get("gps"):
         f["gps"] = full["gps"]
     if settings.get("show_taken") and taken_at:
-        f["taken"] = taken_at
+        f["taken"] = fmt_when(taken_at)
     if settings.get("show_uploaded"):
-        f["uploaded"] = uploaded_at
-    if settings.get("show_dims") and full.get("width"):
-        f["dims"] = f"{full['width']}x{full['height']}"
+        f["uploaded"] = fmt_when(uploaded_at)
     return f
 
 

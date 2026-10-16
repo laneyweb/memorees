@@ -22,10 +22,10 @@ input,select,textarea{background:var(--card);color:var(--ink);border:2px solid v
 .pad{padding:12px}.mut{color:var(--mut);font-size:13px}
 [data-tip]{position:relative}[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);background:var(--ink);color:var(--bg);font-size:12px;padding:6px 10px;border-radius:8px;white-space:nowrap;max-width:calc(100vw - 32px);overflow:hidden;text-overflow:ellipsis;z-index:60;pointer-events:none}
 header [data-tip]:hover::after,#s-albums [data-tip]:hover::after{top:calc(100% + 8px);bottom:auto}
-.viewer{background:#000;color:#fff;border-radius:18px;overflow:hidden;position:relative;border:3px solid var(--ink);touch-action:pan-y}
-.viewer img.slide{width:100%;height:380px;object-fit:contain;display:block;background:#000}
+.viewer{background:transparent;color:#fff;border-radius:18px;overflow:hidden;position:relative;border:3px solid var(--ink);touch-action:pan-y}
+.viewer img.slide{width:100%;height:380px;object-fit:contain;display:block}
 .viewer.small img.slide{height:220px}.viewer.full img.slide{height:70vh}
-.viewer:fullscreen{border:0;border-radius:0}.viewer:fullscreen img.slide{height:100vh}
+.viewer:fullscreen{border:0;border-radius:0;background:var(--bg)}.viewer:fullscreen img.slide{height:100vh}
 .viewer img.fade{animation:fd 1s}.viewer img.sl{animation:sl .6s}.viewer img.zm{animation:zm 3s}
 @keyframes fd{from{opacity:0}to{opacity:1}}@keyframes sl{from{opacity:0;transform:translateX(60px)}to{opacity:1}}@keyframes zm{from{transform:scale(1.12)}to{transform:scale(1)}}
 .vbar{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:linear-gradient(rgba(0,0,0,.6),transparent);font-size:14px;gap:8px;flex-wrap:wrap}
@@ -76,7 +76,7 @@ textarea{width:100%;min-height:90px}
 <span class="mut">Transition:</span><select id="atrans" onchange="saveAlbum()"><option value="fade">Fade</option><option value="slide">Slide</option><option value="zoom">Ken Burns</option><option value="none">None</option></select>
 <button class="btn" onclick="regen()" data-tip="Revoke old link, issue a new one">🔗 New link</button></div>
 <div class="viewer small" id="viewer" style="margin-top:12px"><img id="slide" class="slide fade" src="">
-<div id="noview" style="display:none;min-height:220px;place-items:center;text-align:center;padding:30px 16px;color:#fff;font-size:18px">📷 No photos yet.<br><span style="font-size:14px;opacity:.8">Upload above to begin the slideshow.</span></div>
+<div id="noview" style="display:none;min-height:220px;place-items:center;text-align:center;padding:30px 16px;color:var(--ink);font-size:18px">📷 No photos yet.<br><span style="font-size:14px;opacity:.8">Upload above to begin the slideshow.</span></div>
 <div class="vbar"><span id="vtitle"></span><span><button class="cbtn" onclick="fullV()" data-tip="Fullscreen">⛶</button></span></div>
 <div class="vctrl" id="vctrl"><button class="cbtn" onclick="step(-1)">◀</button><button class="cbtn" id="playB" data-tip="Play / pause" onclick="toggleP()">▶</button><button class="cbtn" onclick="step(1)">▶</button></div></div>
 <div class="row" style="margin-top:8px"><span class="mut">View:</span><button class="btn" onclick="vsize('small')">Small</button><button class="btn" onclick="vsize('large')">Medium</button><button class="btn" onclick="vsize('full')">Large</button></div>
@@ -87,7 +87,7 @@ textarea{width:100%;min-height:90px}
 
 <section id="s-public" class="screen">
 <div class="viewer large" id="pviewer"><img id="pslide" class="slide fade" src="">
-<div id="pnoview" style="display:none;min-height:300px;place-items:center;text-align:center;padding:30px 16px;color:#fff;font-size:18px">📷 This album is empty.</div>
+<div id="pnoview" style="display:none;min-height:300px;place-items:center;text-align:center;padding:30px 16px;color:var(--ink);font-size:18px">📷 This album is empty.</div>
 <div class="vbar"><span id="ptitle"></span><button class="cbtn" onclick="document.getElementById('pviewer').requestFullscreen()">⛶</button></div>
 <div class="vctrl"><button class="cbtn" onclick="pstep(-1)">◀</button><button class="cbtn" id="ppBtn" data-tip="Play / pause" onclick="ptoggle()">▶</button><button class="cbtn" onclick="pstep(1)">▶</button></div></div>
 <div class="row" style="margin-top:10px"><span class="mut">View:</span><button class="btn" onclick="psize('small')" data-tip="Small preview">Small</button><button class="btn" onclick="psize('large')" data-tip="Large focus view">Medium</button><button class="btn" onclick="psize('full')" data-tip="Full theatre view">Large</button></div>
@@ -157,7 +157,7 @@ async function doUpload(){const fs=$('files').files;if(!fs.length)return alert('
 async function saveComment(){if(!PH[I])return;await api(`/api/photos/${PH[I].id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({comment:$('cedit').value})});$('cmsg').textContent='saved ✓';PH[I].comment=$('cedit').value;$('cap').textContent=$('cedit').value;setTimeout(()=>$('cmsg').textContent='',1500)}
 async function saveAlbum(){await api(`/api/albums/${AID}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({font:$('afont').value,transition:$('atrans').value})});paint()}
 async function regen(){const r=await api(`/api/albums/${AID}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({regen:true})});$('alink').textContent=r.link;alert('New link: '+r.link)}
-async function loadSettings(){const s=await api('/api/settings');const L=[['show_camera','Camera'],['show_lens','Lens'],['show_exposure','Exposure (focal/aperture/shutter/ISO)'],['show_gps','GPS'],['show_taken','Taken date'],['show_uploaded','Upload date'],['show_dims','Dimensions']];
+async function loadSettings(){const s=await api('/api/settings');const L=[['show_camera','Camera'],['show_gps','GPS'],['show_taken','Taken date'],['show_uploaded','Upload date']];
  $('exbox').innerHTML=L.map(([k,l])=>`<label style="display:block;margin:6px 0"><input type="checkbox" data-k="${k}" ${s[k]?'checked':''}> ${l}</label>`).join('');$('sfont').value=s.font_default||'hand';show('settings')}
 async function saveSettings(){const b={};document.querySelectorAll('#exbox input').forEach(i=>b[i.dataset.k]=i.checked);b.font_default=$('sfont').value;await api('/api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});alert('Settings saved ✓')}
 async function pub(id){show('public');const d=await api('/api/p/'+id);PP=d.photos;PI=0;

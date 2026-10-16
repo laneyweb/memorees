@@ -41,6 +41,7 @@ check("size memory (owner)", "localStorage.vsize" in html)
 check("size memory (public)", "localStorage.psize" in html)
 check("whole image shown", "object-fit:contain" in html)
 check("fullscreen fills screen", ":fullscreen" in html)
+check("viewer blends with theme", ".viewer{background:transparent" in html)
 
-print(f"\n{21 - len(fails)}/21 passed")
+print(f"\n{22 - len(fails)}/22 passed")
 sys.exit(1 if fails else 0)

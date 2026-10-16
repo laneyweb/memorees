@@ -14,7 +14,7 @@ other words for the same thing.
 - **View Size**: small, medium, or large (large is the theatre size; true browser fullscreen is a separate button).
 - **Transition**: the effect between slides. Values: fade, slide, ken-burns, none.
 - **Caption Font**: the text style of comments. Values: handwritten, modern sans, serif bookish.
-- **EXIF Data**: facts stored inside the photo file (camera, lens, exposure, size).
+- **EXIF Data**: facts stored inside the photo file (camera). Taken and upload dates show beside it.
 - **Taken Date**: the date the photo was taken (from EXIF data).
 - **Upload Date**: the date the photo was added to Memorees.
 - **Settings**: the page where the owner selects which data the viewer shows. GPS is OFF by default.

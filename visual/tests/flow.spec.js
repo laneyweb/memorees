@@ -45,6 +45,8 @@ test('owner flow on desktop', async ({ page }) => {
   await page.fill('#cedit', 'line one\nline two');
   await page.click('text=💾 Save comment');
   await expect(page.locator('#cap')).toContainText('line two');
+  const ex = await page.locator('#ex').textContent();
+  expect(ex).toMatch(/uploaded: \d{2} \w{3} \d{4}/);
   // Draft must survive autoplay refreshes (regression: interval wiped typing)
   await page.fill('#cedit', 'draft in progress');
   await page.waitForTimeout(6500);
