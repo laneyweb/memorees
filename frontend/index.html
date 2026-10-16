@@ -152,7 +152,7 @@ async function submitAlbum(){const t=$('aname').value.trim();if(!t){$('amsg').te
 async function openAlbum(id){AID=id;PH=[];POFF=0;PTOT=0;I=0;$('thumbs').innerHTML='';$('more').textContent='';
  const d0=await api(`/api/albums/${id}/photos?offset=0&limit=48`);
  $('atitle').textContent=d0.album.title;$('alink').textContent=d0.album.link;$('afont').value=d0.album.font;$('atrans').value=d0.album.transition;
- await loadMore();paint();{let vs='small';try{vs=localStorage.vsize||'small'}catch(e){}vs={small:'small',large:'medium',full:'large'}[vs]||vs;vsize(vs)}show('album')}
+ await loadMore();paint();{let vs='medium';try{vs=localStorage.vsize||'medium'}catch(e){}vsize(vs)}show('album')}
 async function loadMore(){if(LOADING||(POFF>0&&PH.length>=PTOT))return;LOADING=true;try{
  const d=await api(`/api/albums/${AID}/photos?offset=${POFF}&limit=48`);PTOT=d.total;
  const start=PH.length;PH.push(...d.photos);POFF=PH.length;appendThumbs(d.photos,start);
@@ -188,7 +188,7 @@ async function loadSettings(){const s=await api('/api/settings');const L=[['show
 async function saveSettings(){const b={};document.querySelectorAll('#exbox input').forEach(i=>b[i.dataset.k]=i.checked);b.font_default=$('sfont').value;await api('/api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});alert('Settings saved')}
 async function pub(id){show('public');PP=[];PPOFF=0;PPTOT=0;PI=0;const d0=await api(`/api/p/${id}?offset=0&limit=48`);
  await ploadMore(d0);
- $('ptitle').textContent=`${d0.album} • by ${d0.author}`;{let ps='medium';try{ps=localStorage.psize||'medium'}catch(e){}ps={full:'large',large:'medium',small:'small'}[ps]||ps;psize(ps)}ppaint();
+ $('ptitle').textContent=`${d0.album} • by ${d0.author}`;{let ps='medium';try{ps=localStorage.psize||'medium'}catch(e){}psize(ps)}ppaint();
  $('pcapbox').className='caption '+(F[d0.font]||'font-hand')}
 async function ploadMore(first){if(PLOADING||(PPOFF>0&&PP.length>=PPTOT))return;PLOADING=true;try{
  const d=first||await api(`/api/p/${location.pathname.split('/')[2]}?offset=${PPOFF}&limit=48`);PPTOT=d.total;PP.push(...d.photos);PPOFF=PP.length}catch(e){}PLOADING=false}

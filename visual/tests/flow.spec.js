@@ -128,6 +128,14 @@ test('public link with no login', async ({ browser }) => {
   await expect(page.locator('#pviewer.full')).toBeVisible();
   await expect(page.locator('#pvseg button[data-s="large"].on')).toBeVisible();
   await expect.poll(() => page.evaluate(() => localStorage.psize)).toBe('large');
+  await page.click('#pcapbox button:has-text("A+")');
+  await expect.poll(() => page.evaluate(() => localStorage.capz)).toBe('1.1');
+  await page.reload();
+  await expect(page.locator('#s-public.on')).toBeVisible();
+  await expect(page.locator('#pviewer.full')).toBeVisible();
+  await expect(page.locator('#pvseg button[data-s="large"].on')).toBeVisible();
+  const pcap = await page.locator('#pcap').evaluate((e) => getComputedStyle(e).fontSize);
+  expect(parseFloat(pcap)).toBeGreaterThan(16);
   await page.click('#pviewer .vctrl button:has-text("▶")').catch(() => {});
   await page.locator('#pviewer').hover();
   await page.screenshot({ path: `${SHOTS}/08-public.png` });

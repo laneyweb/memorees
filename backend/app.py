@@ -488,13 +488,22 @@ def public(puuid: str, offset: int = 0, limit: int = 48):
 
 app.mount("/previews", StaticFiles(directory=PREV), name="previews")
 FRONT = APP_DIR / "frontend" / "index.html"
+NOCACHE = {"Cache-Control": "no-store"}
+
+
+@app.middleware("http")
+async def cache_headers(req, call_next):
+    resp = await call_next(req)
+    if req.url.path.startswith("/previews/"):
+        resp.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+    return resp
 
 
 @app.get("/", response_class=HTMLResponse)
 def index():
-    return FRONT.read_text(encoding="utf-8")
+    return FileResponse(FRONT, media_type="text/html", headers=NOCACHE)
 
 
 @app.get("/p/{puuid}", response_class=HTMLResponse)
 def pub_page(puuid: str):
-    return FRONT.read_text(encoding="utf-8")
+    return FileResponse(FRONT, media_type="text/html", headers=NOCACHE)
