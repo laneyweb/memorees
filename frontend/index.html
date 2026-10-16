@@ -20,7 +20,7 @@ input,select,textarea{background:var(--card);color:var(--ink);border:2px solid v
 .card img{width:100%;height:180px;object-fit:cover;display:block;border-radius:15px 15px 0 0}
 .polaroid{transform:rotate(-1.2deg)}.polaroid:nth-child(even){transform:rotate(1.2deg)}.polaroid:hover{transform:rotate(0) scale(1.02)}
 .pad{padding:12px}.mut{color:var(--mut);font-size:13px}
-[data-tip]{position:relative}[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);background:var(--ink);color:var(--bg);font-size:12px;padding:6px 10px;border-radius:8px;max-width:240px;white-space:normal;text-align:center;z-index:60;pointer-events:none}
+[data-tip]{position:relative}[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);background:var(--ink);color:var(--bg);font-size:12px;padding:6px 10px;border-radius:8px;white-space:nowrap;max-width:calc(100vw - 32px);overflow:hidden;text-overflow:ellipsis;z-index:60;pointer-events:none}
 header [data-tip]:hover::after{top:calc(100% + 8px);bottom:auto}
 .viewer{background:#000;color:#fff;border-radius:18px;overflow:hidden;position:relative;border:3px solid var(--ink);touch-action:pan-y}
 .viewer img.slide{width:100%;height:380px;object-fit:cover;display:block}
@@ -33,7 +33,7 @@ header [data-tip]:hover::after{top:calc(100% + 8px);bottom:auto}
 .cbtn:hover{background:rgba(255,255,255,.32);transform:scale(1.08)}
 .caption{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px;margin-top:12px}
 .comment{white-space:pre-line;line-height:1.5}
-.exif{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.pill{font-size:11px;border:1px solid var(--line);border-radius:99px;padding:3px 9px;background:var(--bg)}
+.exif{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.pill{font-size:14px;border:1px solid var(--line);border-radius:99px;padding:5px 12px;background:var(--bg)}
 .set{background:var(--card);border:2px dashed var(--acc);border-radius:16px;padding:16px;margin-top:16px}
 .font-hand{font-family:Caveat,cursive;font-size:22px}.font-sans{font-family:Inter,sans-serif}.font-serif{font-family:Lora,serif;font-size:18px}
 .row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}.wrap .row{margin-bottom:16px}header .row{margin-bottom:0}
@@ -89,6 +89,7 @@ textarea{width:100%;min-height:90px}
 <div id="pnoview" style="display:none;min-height:300px;place-items:center;text-align:center;padding:30px 16px;color:#fff;font-size:18px">📷 This album is empty.</div>
 <div class="vbar"><span id="ptitle"></span><button class="cbtn" onclick="document.getElementById('pviewer').requestFullscreen()">⛶</button></div>
 <div class="vctrl"><button class="cbtn" onclick="pstep(-1)">◀</button><button class="cbtn" id="ppBtn" onclick="ptoggle()">⏸</button><button class="cbtn" onclick="pstep(1)">▶</button></div></div>
+<div class="row" style="margin-top:10px"><span class="mut">View:</span><button class="btn" onclick="psize('small')" data-tip="Small preview">Small</button><button class="btn" onclick="psize('large')" data-tip="Large focus view">Large</button><button class="btn" onclick="psize('full')" data-tip="Full theatre view">Full</button></div>
 <div class="caption" id="pcapbox"><div class="comment" id="pcap"></div><div class="exif" id="pex"></div></div>
 <p class="mut">Readonly public link • Made with Memorees 💛</p></section>
 
@@ -142,7 +143,7 @@ function paint(){if(!PH.length){$('slide').style.display='none';$('noview').styl
  $('slide').style.display='';$('noview').style.display='none';$('vctrl').style.display='';
  const p=PH[I];const tr=$('atrans').value;const el=$('slide');el.src=p.src;el.className='slide '+(tr==='slide'?'sl':tr==='zoom'?'zm':tr==='none'?'':'fade');void el.offsetWidth;
  $('vtitle').textContent=`${$('atitle').textContent} • ${I+1}/${PH.length}`;
- $('cap').textContent=p.comment||'(no comment yet — write one below)';$('cedit').value=p.comment||'';
+ $('cap').textContent=p.comment||'(no comment yet — write one below)';if(paint._i!==I){$('cedit').value=p.comment||'';paint._i=I}
  $('ex').innerHTML=exPills(p.exif||{});$('capbox').className='caption '+F[$('afont').value||'hand'];
  clearInterval(T);T=setInterval(()=>step(1),5000);$('playB').textContent='⏸'}
 function step(d){if(!PH.length)return;I=(I+d+PH.length)%PH.length;paint()}
@@ -164,6 +165,7 @@ async function pub(id){show('public');const d=await api('/api/p/'+id);PP=d.photo
 function ppaint(){if(!PP.length){$('pslide').style.display='none';$('pnoview').style.display='grid';$('pcap').textContent='Empty album.';return}$('pslide').style.display='';$('pnoview').style.display='none';const p=PP[PI];const el=$('pslide');el.src=p.src;el.className='slide fade';void el.offsetWidth;
  $('pcap').textContent=p.comment||'';$('pex').innerHTML=exPills(p.exif||{});clearInterval(PT);PT=setInterval(()=>pstep(1),5000);$('ppBtn').textContent='⏸'}
 function pstep(d){PI=(PI+d+PP.length)%PP.length;ppaint()}
+function psize(s){$('pviewer').className='viewer '+s}
 function ptoggle(){if($('ppBtn').textContent==='⏸'){clearInterval(PT);$('ppBtn').textContent='▶'}else{ppaint()}}
 async function ver(){try{const v=await api('/api/version');$('ver').textContent=`Version ${v.version} • build ${v.build} • ${v.date}`}catch(e){$('ver').textContent='Version unknown (offline preview)'}}
 // swipe (tablet)

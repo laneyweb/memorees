@@ -44,6 +44,10 @@ test('owner flow on desktop', async ({ page }) => {
   await page.fill('#cedit', 'line one\nline two');
   await page.click('text=💾 Save comment');
   await expect(page.locator('#cap')).toContainText('line two');
+  // Draft must survive autoplay refreshes (regression: interval wiped typing)
+  await page.fill('#cedit', 'draft in progress');
+  await page.waitForTimeout(6500);
+  await expect(page.locator('#cedit')).toHaveValue('draft in progress');
 
   // Settings + font/transition persist
   await page.selectOption('#afont', 'serif');
@@ -83,6 +87,8 @@ test('public link with no login', async ({ browser }) => {
   await expect(page.locator('#ptitle')).toContainText('Visual album');
   await expect(page.locator('#pcap')).toContainText('line two');
   const before = await page.locator('#pslide').getAttribute('src');
+  await page.click('#s-public button:has-text("Full")');
+  await expect(page.locator('#pviewer.full')).toBeVisible();
   await page.click('#pviewer .vctrl button:has-text("▶")').catch(() => {});
   await page.locator('#pviewer').hover();
   await page.screenshot({ path: `${SHOTS}/08-public.png` });
