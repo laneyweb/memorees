@@ -4,10 +4,13 @@ Fun, simple memory albums for homelabs. Variant A (Scrapbook) UI winner.
 
 ## Run
 ```powershell
+Copy-Item .env.example .env   # once per host, then edit .env
 $env:BUILD_HASH=(git rev-parse --short HEAD); $env:BUILD_DATE=(Get-Date -Format o)
 docker compose up --build
 # open http://localhost:8000
 ```
+Host values (`BASE_URL`, `ALLOW_SIGNUP`) live in `.env`, which git never
+touches — pulls cannot overwrite them.
 
 ## Nginx Proxy Manager
 Forward host → `http://<docker-host>:8000`, websockets off, block common exploits on.

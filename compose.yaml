@@ -8,8 +8,8 @@ services:
     volumes:
       - ./data:/data
     environment:
-      ALLOW_SIGNUP: "true"       # set to "false" to lock registration
-      BASE_URL: "http://localhost:8000"  # used to build public share links
+      ALLOW_SIGNUP: "${ALLOW_SIGNUP:-true}"   # set false in .env to lock registration
+      BASE_URL: "${BASE_URL:-http://localhost:8000}"  # public address; used for share links
       BUILD_HASH: "${BUILD_HASH:-dev}"
       BUILD_DATE: "${BUILD_DATE:-unknown}"
     restart: unless-stopped
