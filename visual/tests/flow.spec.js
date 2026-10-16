@@ -55,13 +55,18 @@ test('owner flow on desktop', async ({ page }) => {
   // Settings + font/transition persist
   await page.selectOption('#afont', 'serif');
   await expect(page.locator('#capbox.font-serif')).toBeVisible();
-  await page.mouse.move(720, 500);
+  const vbox = await page.locator('#viewer').boundingBox();
+  await page.mouse.move(vbox.x + vbox.width / 2, vbox.y + 40);
   await page.click('#ovseg button[data-s="medium"]');
   await expect(page.locator('#ovseg button[data-s="medium"].on')).toBeVisible();
   await expect.poll(() => page.evaluate(() => localStorage.vsize)).toBe('medium');
   await page.waitForTimeout(3600);
   await expect.poll(() => page.locator('#s-album .vctrl').evaluate((e) => getComputedStyle(e).opacity)).toBe('0');
-  await page.mouse.move(720, 500);
+  await page.mouse.move(720, 30);
+  await page.waitForTimeout(500);
+  await expect.poll(() => page.locator('#s-album .vctrl').evaluate((e) => getComputedStyle(e).opacity)).toBe('0');
+  const vbox2 = await page.locator('#viewer').boundingBox();
+  await page.mouse.move(vbox2.x + vbox2.width / 2, vbox2.y + 40);
   await expect.poll(() => page.locator('#s-album .vctrl').evaluate((e) => getComputedStyle(e).opacity)).toBe('1');
   await page.screenshot({ path: `${SHOTS}/05-album-full.png` });
 
@@ -98,7 +103,8 @@ test('public link with no login', async ({ browser }) => {
   await expect(page.locator('#ptitle')).toContainText('Visual album');
   await expect(page.locator('#pcap')).toContainText('line two');
   const before = await page.locator('#pslide').getAttribute('src');
-  await page.mouse.move(720, 400);
+  const pbox = await page.locator('#pviewer').boundingBox();
+  await page.mouse.move(pbox.x + pbox.width / 2, pbox.y + 40);
   await page.click('#pvseg button[data-s="large"]');
   await expect(page.locator('#pviewer.full')).toBeVisible();
   await expect(page.locator('#pvseg button[data-s="large"].on')).toBeVisible();

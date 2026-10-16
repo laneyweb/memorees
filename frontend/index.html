@@ -179,10 +179,10 @@ function ptoggle(){if(PT){clearInterval(PT);PT=null;$('ppBtn').textContent='▶'
 const PSIZE_CLS={small:'small',medium:'large',large:'full'};
 function psize(s){if(!PSIZE_CLS[s])s='medium';try{localStorage.psize=s}catch(e){}$('pviewer').className='viewer '+PSIZE_CLS[s];document.querySelectorAll('#pvseg [data-s]').forEach(b=>b.classList.toggle('on',b.dataset.s===s))}
 async function ver(){try{const v=await api('/api/version');$('ver').textContent=`Version ${v.version} • build ${v.build} • ${v.date}`}catch(e){$('ver').textContent='Version unknown (offline preview)'}}
-// viewer bars auto-hide after 3s idle, return on move/tap
+// viewer bars auto-hide after 3s idle; only moving over the viewer wakes them
 function poke(id){const v=$(id);if(!v)return;v.classList.remove('idle');clearTimeout(v._t);v._t=setTimeout(()=>v.classList.add('idle'),3000)}
-['mousemove','touchstart','click'].forEach(ev=>document.addEventListener(ev,()=>{poke('viewer');poke('pviewer')},{passive:true}));
-poke('viewer');poke('pviewer');
+function watch(id){const v=$(id);if(!v)return;const wake=()=>poke(id);v.addEventListener('mousemove',wake);v.addEventListener('touchstart',wake,{passive:true});v.addEventListener('click',wake);poke(id)}
+watch('viewer');watch('pviewer');
 // swipe (tablet)
 [['viewer',d=>step(d)],['pviewer',d=>pstep(d)]].forEach(([id,fn])=>{let x=0;const v=$(id);if(!v)return;v.addEventListener('touchstart',e=>x=e.touches[0].clientX,{passive:true});v.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-x;if(Math.abs(dx)>40)fn(dx<0?1:-1)},{passive:true})});
 boot();
