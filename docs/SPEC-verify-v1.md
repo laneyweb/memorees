@@ -35,7 +35,7 @@ machine-checkable half so any host can be re-verified after upgrades.
 13. As an owner, I want each album to mint a public link that needs no login, so that family can view without accounts.
 14. As an owner, I want to regenerate a public link, so that a leaked link can be revoked.
 15. As a viewer, I want prev / next / pause controls plus fullscreen, so that I can drive the slideshow.
-16. As a viewer, I want small / large / full view sizes, so that the show fits my screen.
+16. As a viewer, I want small / medium / large view sizes, so that the show fits my screen.
 17. As a viewer, I want the album name and author shown, so that I know whose memories these are.
 18. As a viewer, I want swipe navigation on a tablet, so that touch just works.
 19. As a viewer, I want light and dark themes, so that evening viewing is comfortable.

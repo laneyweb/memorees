@@ -11,7 +11,7 @@ other words for the same thing.
 - **Public Link**: the readonly URL of one album. Format: `/p/<id>`. No login is needed.
 - **Slideshow**: the viewer that shows the photos of one album, one at a time.
 - **Viewer Controls**: prev, next, pause/play, view size, and fullscreen.
-- **View Size**: small, large, or full. It sets the size of the slideshow image.
+- **View Size**: small, medium, or large (large is the theatre size; true browser fullscreen is a separate button).
 - **Transition**: the effect between slides. Values: fade, slide, ken-burns, none.
 - **Caption Font**: the text style of comments. Values: handwritten, modern sans, serif bookish.
 - **EXIF Data**: facts stored inside the photo file (camera, lens, exposure, size).

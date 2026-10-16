@@ -87,7 +87,7 @@ test('public link with no login', async ({ browser }) => {
   await expect(page.locator('#ptitle')).toContainText('Visual album');
   await expect(page.locator('#pcap')).toContainText('line two');
   const before = await page.locator('#pslide').getAttribute('src');
-  await page.click('#s-public button:has-text("Full")');
+  await page.click('#s-public button:has-text("Large")');
   await expect(page.locator('#pviewer.full')).toBeVisible();
   await page.click('#pviewer .vctrl button:has-text("▶")').catch(() => {});
   await page.locator('#pviewer').hover();

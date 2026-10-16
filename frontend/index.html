@@ -21,7 +21,7 @@ input,select,textarea{background:var(--card);color:var(--ink);border:2px solid v
 .polaroid{transform:rotate(-1.2deg)}.polaroid:nth-child(even){transform:rotate(1.2deg)}.polaroid:hover{transform:rotate(0) scale(1.02)}
 .pad{padding:12px}.mut{color:var(--mut);font-size:13px}
 [data-tip]{position:relative}[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);background:var(--ink);color:var(--bg);font-size:12px;padding:6px 10px;border-radius:8px;white-space:nowrap;max-width:calc(100vw - 32px);overflow:hidden;text-overflow:ellipsis;z-index:60;pointer-events:none}
-header [data-tip]:hover::after{top:calc(100% + 8px);bottom:auto}
+header [data-tip]:hover::after,#s-albums [data-tip]:hover::after{top:calc(100% + 8px);bottom:auto}
 .viewer{background:#000;color:#fff;border-radius:18px;overflow:hidden;position:relative;border:3px solid var(--ink);touch-action:pan-y}
 .viewer img.slide{width:100%;height:380px;object-fit:cover;display:block}
 .viewer.small img.slide{height:220px}.viewer.full img.slide{height:70vh}
@@ -78,7 +78,7 @@ textarea{width:100%;min-height:90px}
 <div id="noview" style="display:none;min-height:220px;place-items:center;text-align:center;padding:30px 16px;color:#fff;font-size:18px">📷 No photos yet.<br><span style="font-size:14px;opacity:.8">Upload above to begin the slideshow.</span></div>
 <div class="vbar"><span id="vtitle"></span><span><button class="cbtn" onclick="fullV()" data-tip="Fullscreen">⛶</button></span></div>
 <div class="vctrl" id="vctrl"><button class="cbtn" onclick="step(-1)">◀</button><button class="cbtn" id="playB" onclick="toggleP()">⏸</button><button class="cbtn" onclick="step(1)">▶</button></div></div>
-<div class="row" style="margin-top:8px"><span class="mut">View:</span><button class="btn" onclick="vsize('small')">Small</button><button class="btn" onclick="vsize('large')">Large</button><button class="btn" onclick="vsize('full')">Full</button></div>
+<div class="row" style="margin-top:8px"><span class="mut">View:</span><button class="btn" onclick="vsize('small')">Small</button><button class="btn" onclick="vsize('large')">Medium</button><button class="btn" onclick="vsize('full')">Large</button></div>
 <div class="caption" id="capbox"><div class="comment" id="cap"></div><div class="exif" id="ex"></div></div>
 <div class="set"><b>Edit this photo's comment</b><textarea id="cedit" placeholder="Multiline comment for the currently shown photo…"></textarea>
 <p></p><button class="btn primary" onclick="saveComment()">💾 Save comment</button> <span class="mut" id="cmsg"></span></div>
@@ -89,7 +89,7 @@ textarea{width:100%;min-height:90px}
 <div id="pnoview" style="display:none;min-height:300px;place-items:center;text-align:center;padding:30px 16px;color:#fff;font-size:18px">📷 This album is empty.</div>
 <div class="vbar"><span id="ptitle"></span><button class="cbtn" onclick="document.getElementById('pviewer').requestFullscreen()">⛶</button></div>
 <div class="vctrl"><button class="cbtn" onclick="pstep(-1)">◀</button><button class="cbtn" id="ppBtn" onclick="ptoggle()">⏸</button><button class="cbtn" onclick="pstep(1)">▶</button></div></div>
-<div class="row" style="margin-top:10px"><span class="mut">View:</span><button class="btn" onclick="psize('small')" data-tip="Small preview">Small</button><button class="btn" onclick="psize('large')" data-tip="Large focus view">Large</button><button class="btn" onclick="psize('full')" data-tip="Full theatre view">Full</button></div>
+<div class="row" style="margin-top:10px"><span class="mut">View:</span><button class="btn" onclick="psize('small')" data-tip="Small preview">Small</button><button class="btn" onclick="psize('large')" data-tip="Large focus view">Medium</button><button class="btn" onclick="psize('full')" data-tip="Full theatre view">Large</button></div>
 <div class="caption" id="pcapbox"><div class="comment" id="pcap"></div><div class="exif" id="pex"></div></div>
 <p class="mut">Readonly public link • Made with Memorees 💛</p></section>
 

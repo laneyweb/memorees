@@ -34,6 +34,7 @@ check("about returns to previous screen", "show(PREV)" in html)
 check("comment box survives autoplay", "paint._i" in html)
 check("public view sizes", "psize(" in html)
 check("readable exif tags", ".pill{font-size:14px" in html)
+check("toolbar tooltips open downward", "#s-albums [data-tip]:hover::after" in html)
 
-print(f"\n{14 - len(fails)}/14 passed")
+print(f"\n{15 - len(fails)}/15 passed")
 sys.exit(1 if fails else 0)
