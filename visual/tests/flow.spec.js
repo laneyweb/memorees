@@ -55,6 +55,7 @@ test('owner flow on desktop', async ({ page }) => {
   // Settings + font/transition persist
   await page.selectOption('#afont', 'serif');
   await expect(page.locator('#capbox.font-serif')).toBeVisible();
+  await page.mouse.move(720, 500);
   await page.click('#ovseg button[data-s="medium"]');
   await expect(page.locator('#ovseg button[data-s="medium"].on')).toBeVisible();
   await expect.poll(() => page.evaluate(() => localStorage.vsize)).toBe('medium');
@@ -97,6 +98,7 @@ test('public link with no login', async ({ browser }) => {
   await expect(page.locator('#ptitle')).toContainText('Visual album');
   await expect(page.locator('#pcap')).toContainText('line two');
   const before = await page.locator('#pslide').getAttribute('src');
+  await page.mouse.move(720, 400);
   await page.click('#pvseg button[data-s="large"]');
   await expect(page.locator('#pviewer.full')).toBeVisible();
   await expect(page.locator('#pvseg button[data-s="large"].on')).toBeVisible();
