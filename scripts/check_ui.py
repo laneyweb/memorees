@@ -51,6 +51,7 @@ check("photo delete controls", "delPhotoBtn" in html)
 check("mini zoom buttons", 'class="mini"' in html)
 check("brand mark in header", 'id="logoMark"' in html)
 check("brand favicon", 'rel="icon"' in html)
+check("no emoji album chrome", "🏖️" not in html and "New memory album 📸" not in html)
 
-print(f"\n{31 - len(fails)}/31 passed")
+print(f"\n{32 - len(fails)}/32 passed")
 sys.exit(1 if fails else 0)

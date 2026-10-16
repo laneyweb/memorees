@@ -43,6 +43,7 @@ test('owner flow on desktop', async ({ page }) => {
   await page.setInputFiles('#files', path.join(__dirname, 'fixtures', 'probe.png'));
   await page.click('text=⬆ Upload');
   await expect(page.locator('#noview')).toBeHidden({ timeout: 15000 });
+  await expect(page.locator('#cedit')).toHaveValue('');
   await page.fill('#cedit', 'line one\nline two');
   await page.click('text=💾 Save comment');
   await expect(page.locator('#cap')).toContainText('line two');
@@ -79,9 +80,11 @@ test('owner flow on desktop', async ({ page }) => {
   await page.setInputFiles('#files', path.join(__dirname, 'fixtures', 'probe.png'));
   await page.click('text=⬆ Upload');
   await expect(page.locator('#noview')).toBeHidden({ timeout: 15000 });
+  await expect(page.locator('#cedit')).toHaveValue('');
   await page.fill('#cedit', 'line one\nline two');
   await page.click('text=💾 Save comment');
   await expect(page.locator('#cap')).toContainText('line two');
+  await expect(page.locator('#s-album.on')).toBeVisible();
   await page.screenshot({ path: `${SHOTS}/05-album-full.png` });
 
   // About Back returns (dead-button regression)

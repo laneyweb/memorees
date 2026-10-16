@@ -113,7 +113,7 @@ textarea{width:100%;min-height:90px}
 <button class="btn primary" onclick="saveSettings()">Save</button><button class="btn" onclick="show('albums')">Done</button></div></div></div></section>
 
 <div class="modal" id="albumModal" onclick="if(event.target===this)closeAlbumModal()"><div class="mbox">
-<h3 style="margin-top:0">New memory album 📸</h3>
+<h3 style="margin-top:0">New memory album</h3>
 <label class="mut" for="aname">Album name</label>
 <input id="aname" placeholder="e.g. Beach day!" maxlength="80" style="width:100%" onkeydown="if(event.key==='Enter')submitAlbum();if(event.key==='Escape')closeAlbumModal()">
 <p></p><div class="row"><button class="btn primary" onclick="submitAlbum()">Create album</button><button class="btn" onclick="closeAlbumModal()">Cancel</button></div>
@@ -151,9 +151,9 @@ function openAlbumModal(){$('amsg').textContent='';$('aname').value='';$('albumM
 function closeAlbumModal(){$('albumModal').classList.remove('on')}
 async function submitAlbum(){const t=$('aname').value.trim();if(!t){$('amsg').textContent='Type a name first.';return}const r=await api('/api/albums',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:t})});closeAlbumModal();openAlbum(r.id)}
 async function openAlbum(id){AID=id;const d=await api(`/api/albums/${id}/photos`);PH=d.photos;I=0;
- $('atitle').textContent='🏖️ '+d.album.title;$('alink').textContent=d.album.link;$('afont').value=d.album.font;$('atrans').value=d.album.transition;
+ $('atitle').textContent=d.album.title;$('alink').textContent=d.album.link;$('afont').value=d.album.font;$('atrans').value=d.album.transition;
  $('thumbs').innerHTML=PH.map((p,i)=>`<div class="card" style="cursor:pointer" onclick="jump(${i})"><img src="${p.src}"><button class="thumbx" onclick="event.stopPropagation();delPhoto(${p.id},this)" data-tip="Delete photo">×</button><div class="pad"><div class="mut">${(p.comment||'no comment').slice(0,60)}</div></div></div>`).join('');
- paint();{let vs='small';try{vs=localStorage.vsize||'small'}catch(e){}vs={small:'small',large:'medium',full:'large'}[vs]||vs;vsize(vs)}show('album')}
+ paint._i=-1;paint();{let vs='small';try{vs=localStorage.vsize||'small'}catch(e){}vs={small:'small',large:'medium',full:'large'}[vs]||vs;vsize(vs)}show('album')}
 function paint(){if(!PH.length){$('slide').style.display='none';$('noview').style.display='grid';$('vctrl').style.display='none';$('vtitle').textContent='Empty album';$('cap').textContent='Upload photos to begin.';$('ex').innerHTML='';return}
  $('slide').style.display='';$('noview').style.display='none';$('vctrl').style.display='';
  const p=PH[I];const tr=$('atrans').value;const el=$('slide');el.src=p.src;el.className='slide '+(tr==='slide'?'sl':tr==='zoom'?'zm':tr==='none'?'':'fade');void el.offsetWidth;
