@@ -70,6 +70,34 @@ def init():
 
 init()
 
+
+def migrate():
+    c = db()
+    try:
+        c.execute("ALTER TABLE photos ADD COLUMN thumb TEXT DEFAULT ''")
+    except Exception:
+        pass
+    c.commit()
+    c.close()
+
+
+migrate()
+
+
+def make_thumb(preview_name: str) -> str:
+    """400px grid thumb stored next to the preview; backfilled on demand."""
+    stem = Path(preview_name).stem
+    thumb = stem + "_t.jpg"
+    if not (PREV / thumb).exists() and (PREV / preview_name).exists():
+        try:
+            im = Image.open(PREV / preview_name).convert("RGB")
+            im.thumbnail((400, 400))
+            im.save(PREV / thumb, "JPEG", quality=80)
+        except Exception:
+            return preview_name
+    return thumb if (PREV / thumb).exists() else preview_name
+
+
 DEFAULT_SETTINGS = {
     "show_camera": True,
     "show_gps": False, "show_taken": True, "show_uploaded": True,
@@ -270,11 +298,18 @@ def albums(session: str | None = Cookie(default=None)):
     out = []
     for a in rows:
         n = c.execute("SELECT COUNT(*) n FROM photos WHERE album_id=?", (a["id"],)).fetchone()["n"]
-        cov = c.execute("SELECT preview FROM photos WHERE album_id=? ORDER BY pos,rowid LIMIT 1",
+        cov = c.execute("SELECT preview,thumb FROM photos WHERE album_id=? ORDER BY pos,rowid LIMIT 1",
                         (a["id"],)).fetchone()
+        cv = None
+        if cov:
+            th = cov["thumb"] or make_thumb(cov["preview"])
+            if not cov["thumb"]:
+                c.execute("UPDATE photos SET thumb=? WHERE preview=?", (th, cov["preview"]))
+                c.commit()
+            cv = f"/previews/{th}"
         out.append({"id": a["id"], "title": a["title"], "font": a["font"],
                     "transition": a["transition"], "public_uuid": a["public_uuid"],
-                    "count": n, "cover": f"/previews/{cov['preview']}" if cov else None,
+                    "count": n, "cover": cv,
                     "link": f"{BASE_URL}/p/{a['public_uuid']}"})
     c.close()
     return out
@@ -327,21 +362,31 @@ def del_album(aid: int, session: str | None = Cookie(default=None)):
 
 
 @app.get("/api/albums/{aid}/photos")
-def photos(aid: int, session: str | None = Cookie(default=None)):
+def photos(aid: int, offset: int = 0, limit: int = 48, session: str | None = Cookie(default=None)):
     u = need(me(session))
     c = db()
     a = c.execute("SELECT * FROM albums WHERE id=? AND owner=?", (aid, u["id"])).fetchone()
     if not a:
         c.close()
         raise HTTPException(404, "album not found")
-    rows = c.execute("SELECT * FROM photos WHERE album_id=? ORDER BY pos,rowid", (aid,)).fetchall()
+    total = c.execute("SELECT COUNT(*) n FROM photos WHERE album_id=?", (aid,)).fetchone()["n"]
+    rows = c.execute("SELECT * FROM photos WHERE album_id=? ORDER BY pos,rowid LIMIT ? OFFSET ?",
+                     (aid, limit, offset)).fetchall()
     st = get_settings(u)
-    out = [{"id": r["id"], "src": f"/previews/{r['preview']}", "comment": r["comment"],
-            "exif": filter_exif(json.loads(r["exif"] or "{}"), st, r["taken_at"], r["uploaded_at"]),
-            "taken": r["taken_at"], "uploaded": r["uploaded_at"]} for r in rows]
+    out = []
+    for r in rows:
+        th = r["thumb"] or make_thumb(r["preview"])
+        if not r["thumb"]:
+            c.execute("UPDATE photos SET thumb=? WHERE id=?", (th, r["id"]))
+        out.append({"id": r["id"], "thumb": f"/previews/{th}", "src": f"/previews/{r['preview']}",
+                    "comment": r["comment"],
+                    "exif": filter_exif(json.loads(r["exif"] or "{}"), st, r["taken_at"], r["uploaded_at"]),
+                    "taken": r["taken_at"], "uploaded": r["uploaded_at"]})
+    c.commit()
     c.close()
     return {"album": {"id": a["id"], "title": a["title"], "font": a["font"],
-                      "transition": a["transition"], "link": f"{BASE_URL}/p/{a['public_uuid']}"}, "photos": out}
+                      "transition": a["transition"], "link": f"{BASE_URL}/p/{a['public_uuid']}"},
+            "photos": out, "total": total}
 
 
 @app.post("/api/albums/{aid}/photos")
@@ -374,8 +419,8 @@ async def upload(aid: int, files: list[UploadFile] = File(...),
             raw.unlink(missing_ok=True)
             continue
         now = datetime.utcnow().isoformat()
-        c.execute("INSERT INTO photos(album_id,fname,preview,comment,taken_at,uploaded_at,exif) VALUES(?,?,?,?,?,?,?)",
-                  (aid, f.filename[:120], pv, "", taken, now, json.dumps(ex)))
+        c.execute("INSERT INTO photos(album_id,fname,preview,thumb,comment,taken_at,uploaded_at,exif) VALUES(?,?,?,?,?,?,?,?)",
+                  (aid, f.filename[:120], pv, make_thumb(pv), "", taken, now, json.dumps(ex)))
         made.append({"taken": taken, "name": f.filename})
     c.commit()
     c.close()
@@ -413,11 +458,12 @@ def del_photo(pid: int, session: str | None = Cookie(default=None)):
     for f in ORIG.glob(stem + ".*"):
         f.unlink(missing_ok=True)
     (PREV / r["preview"]).unlink(missing_ok=True)
+    (PREV / (stem + "_t.jpg")).unlink(missing_ok=True)
     return {"ok": True}
 
 
 @app.get("/api/p/{puuid}")
-def public(puuid: str):
+def public(puuid: str, offset: int = 0, limit: int = 48):
     c = db()
     a = c.execute("SELECT a.*, u.username, u.settings FROM albums a JOIN users u ON u.id=a.owner WHERE a.public_uuid=?",
                   (puuid,)).fetchone()
@@ -429,13 +475,15 @@ def public(puuid: str):
         st.update(json.loads(a["settings"] or "{}"))
     except Exception:
         pass
-    rows = c.execute("SELECT * FROM photos WHERE album_id=? ORDER BY pos,rowid", (a["id"],)).fetchall()
+    rows = c.execute("SELECT * FROM photos WHERE album_id=? ORDER BY pos,rowid LIMIT ? OFFSET ?",
+                     (a["id"], limit, offset)).fetchall()
+    total = c.execute("SELECT COUNT(*) n FROM photos WHERE album_id=?", (a["id"],)).fetchone()["n"]
     c.close()
     return {"album": a["title"], "author": a["username"], "font": a["font"],
             "transition": a["transition"],
             "photos": [{"src": f"/previews/{r['preview']}", "comment": r["comment"],
                         "exif": filter_exif(json.loads(r["exif"] or "{}"), st, r["taken_at"], r["uploaded_at"])}
-                       for r in rows]}
+                       for r in rows], "total": total}
 
 
 app.mount("/previews", StaticFiles(directory=PREV), name="previews")

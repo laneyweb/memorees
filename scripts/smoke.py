@@ -118,7 +118,7 @@ def main():
         link1 = (json.loads(b) or {}).get("public_uuid") if s == 200 else None
         check("03 regen link", s == 200 and link1, f"http={s}")
         s, b = c.get(f"/api/albums/{aid}/photos")
-        check("03 photo list empty", s == 200 and json.loads(b)["photos"] == [], f"http={s}")
+        check("03 photo list empty", s == 200 and json.loads(b)["photos"] == [] and json.loads(b)["total"] == 0, f"http={s}")
 
         # 04: upload + comment
         s, b = c.upload(f"/api/albums/{aid}/photos", "probe.png", PNG_1PX)
@@ -129,6 +129,8 @@ def main():
             check("04 png upload", False, f"http={s} {e}")
         s, b = c.get(f"/api/albums/{aid}/photos")
         photos = (json.loads(b) or {}).get("photos", []) if s == 200 else []
+        total = (json.loads(b) or {}).get("total")
+        check("04 paged shape", total == 1 and len(photos) == 1 and photos[0].get("thumb", "").endswith("_t.jpg"), f"{b[:160]}")
         pid = photos[0]["id"] if photos else None
         src = photos[0]["src"] if photos else None
         check("04 photo listed", bool(pid), f"http={s}")

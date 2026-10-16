@@ -94,7 +94,7 @@ textarea{width:100%;min-height:90px}
 <div class="vctrl" id="vctrl"><button class="cbtn" onclick="step(-1)">◀</button><button class="cbtn" id="playB" data-tip="Play / pause" onclick="toggleP()">▶</button><button class="cbtn" onclick="step(1)">▶</button><span class="dockseg" id="ovseg">Size <button data-s="small" onclick="vsize('small')">S</button><button data-s="medium" onclick="vsize('medium')">M</button><button data-s="large" onclick="vsize('large')">L</button></span></div></div>
 <!-- owner sizes live in the control dock, mirroring the public view -->
 <div class="caption" id="capbox"><button class="mini" id="editBtn" onclick="startEdit()" data-tip="Edit comment">Edit</button><div class="comment" id="cap"></div><div class="exif" id="ex"></div></div>
-<div class="grid" id="thumbs" style="margin-top:12px"></div></section>
+<div class="grid" id="thumbs" style="margin-top:12px"></div><div id="more" class="mut" style="text-align:center;padding:12px"></div></section>
 
 <section id="s-public" class="screen">
 <div class="viewer large" id="pviewer"><img id="pslide" class="slide fade" src="">
@@ -125,7 +125,7 @@ textarea{width:100%;min-height:90px}
 
 </div>
 <script>
-let ME=null,AID=null,PH=[],I=0,T=null,PP=[],PI=0,PT=null;
+let ME=null,AID=null,PH=[],I=0,T=null,PP=[],PI=0,PT=null,PTOT=0,POFF=0,LOADING=false,PPTOT=0,PPOFF=0,PLOADING=false;
 const $=id=>document.getElementById(id);
 const F={hand:'font-hand',sans:'font-sans',serif:'font-serif'};
 function goHome(){if(location.pathname.indexOf('/p/')===0){location.href='/'}else if(ME){albumsTab()}else{show('auth')}}
@@ -149,18 +149,25 @@ async function loadAlbums(){const a=await api('/api/albums');$('albums').innerHT
 function openAlbumModal(){$('amsg').textContent='';$('aname').value='';$('albumModal').classList.add('on');setTimeout(()=>$('aname').focus(),50)}
 function closeAlbumModal(){$('albumModal').classList.remove('on')}
 async function submitAlbum(){const t=$('aname').value.trim();if(!t){$('amsg').textContent='Type a name first.';return}const r=await api('/api/albums',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:t})});closeAlbumModal();openAlbum(r.id)}
-async function openAlbum(id){AID=id;const d=await api(`/api/albums/${id}/photos`);PH=d.photos;I=0;
- $('atitle').textContent=d.album.title;$('alink').textContent=d.album.link;$('afont').value=d.album.font;$('atrans').value=d.album.transition;
- $('thumbs').innerHTML=PH.map((p,i)=>`<div class="card" style="cursor:pointer" onclick="jump(${i})"><img src="${p.src}"><button class="thumbx" onclick="event.stopPropagation();delPhoto(${p.id},this)" data-tip="Delete photo">×</button><div class="pad"><div class="mut">${(p.comment||'no comment').slice(0,60)}</div></div></div>`).join('');
- paint();{let vs='small';try{vs=localStorage.vsize||'small'}catch(e){}vs={small:'small',large:'medium',full:'large'}[vs]||vs;vsize(vs)}show('album')}
+async function openAlbum(id){AID=id;PH=[];POFF=0;PTOT=0;I=0;$('thumbs').innerHTML='';$('more').textContent='';
+ const d0=await api(`/api/albums/${id}/photos?offset=0&limit=48`);
+ $('atitle').textContent=d0.album.title;$('alink').textContent=d0.album.link;$('afont').value=d0.album.font;$('atrans').value=d0.album.transition;
+ await loadMore();paint();{let vs='small';try{vs=localStorage.vsize||'small'}catch(e){}vs={small:'small',large:'medium',full:'large'}[vs]||vs;vsize(vs)}show('album')}
+async function loadMore(){if(LOADING||(POFF>0&&PH.length>=PTOT))return;LOADING=true;try{
+ const d=await api(`/api/albums/${AID}/photos?offset=${POFF}&limit=48`);PTOT=d.total;
+ const start=PH.length;PH.push(...d.photos);POFF=PH.length;appendThumbs(d.photos,start);
+ $('more').textContent=PH.length<PTOT?`Showing ${PH.length} of ${PTOT} — scroll for more`:(PTOT?`${PTOT} photos`:'');
+}catch(e){}LOADING=false}
+function appendThumbs(rows,start){$('thumbs').insertAdjacentHTML('beforeend',rows.map((p,k)=>`<div class="card" style="cursor:pointer" onclick="jump(${start+k})"><img loading="lazy" src="${p.thumb}"><button class="thumbx" onclick="event.stopPropagation();delPhoto(${p.id},this)" data-tip="Delete photo">×</button><div class="pad"><div class="mut">${(p.comment||'no comment').slice(0,60)}</div></div></div>`).join(''))}
+if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting&&$('s-album').classList.contains('on'))loadMore()})},{rootMargin:'600px'});addEventListener('load',()=>io.observe($('more')))}
 function paint(){if(!PH.length){$('slide').style.display='none';$('noview').style.display='grid';$('vctrl').style.display='none';$('vtitle').textContent='Empty album';$('cap').textContent='Upload photos to begin.';$('ex').innerHTML='';return}
  $('slide').style.display='';$('noview').style.display='none';$('vctrl').style.display='';
  const p=PH[I];const tr=$('atrans').value;const el=$('slide');el.src=p.src;el.className='slide '+(tr==='slide'?'sl':tr==='zoom'?'zm':tr==='none'?'':'fade');void el.offsetWidth;
- $('vtitle').textContent=`${$('atitle').textContent} • ${I+1}/${PH.length}`;
+ $('vtitle').textContent=`${$('atitle').textContent} • ${I+1}/${PTOT||PH.length}`;
  $('cap').textContent=p.comment||'(no comment yet — write one below)';
  $('ex').innerHTML=exPills(p.exif||{})+zoomHtml();$('capbox').className='caption '+F[$('afont').value||'hand'];applyCapZoom();
  $('playB').textContent=T?'⏸':'▶'}
-function step(d){if(!PH.length)return;I=(I+d+PH.length)%PH.length;paint()}
+async function step(d){if(!PH.length&&!PTOT)return;let n=I+d;if((n>=PH.length||n<0)&&PH.length<PTOT){await loadMore()}if(!PH.length)return;if(n>=PH.length)n=0;if(n<0)n=PH.length-1;I=n;paint()}
 function jump(i){I=i;paint()}
 function toggleP(){if(T){clearInterval(T);T=null;$('playB').textContent='▶'}else{T=setInterval(()=>step(1),5000);$('playB').textContent='⏸'}}
 const VSIZE_CLS={small:'small',medium:'large',large:'full'};
@@ -179,12 +186,15 @@ async function regen(){const r=await api(`/api/albums/${AID}`,{method:'PUT',head
 async function loadSettings(){const s=await api('/api/settings');const L=[['show_camera','Camera'],['show_gps','GPS'],['show_taken','Taken date'],['show_uploaded','Upload date']];
  $('exbox').innerHTML=L.map(([k,l])=>`<label style="display:block;margin:6px 0"><input type="checkbox" data-k="${k}" ${s[k]?'checked':''}> ${l}</label>`).join('');$('sfont').value=s.font_default||'hand';show('settings')}
 async function saveSettings(){const b={};document.querySelectorAll('#exbox input').forEach(i=>b[i.dataset.k]=i.checked);b.font_default=$('sfont').value;await api('/api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});alert('Settings saved')}
-async function pub(id){show('public');const d=await api('/api/p/'+id);PP=d.photos;PI=0;
- $('ptitle').textContent=`${d.album} • by ${d.author}`;{let ps='medium';try{ps=localStorage.psize||'medium'}catch(e){}ps={full:'large',large:'medium',small:'small'}[ps]||ps;psize(ps)}ppaint();
- $('pcapbox').className='caption '+(F[d.font]||'font-hand')}
+async function pub(id){show('public');PP=[];PPOFF=0;PPTOT=0;PI=0;const d0=await api(`/api/p/${id}?offset=0&limit=48`);
+ await ploadMore(d0);
+ $('ptitle').textContent=`${d0.album} • by ${d0.author}`;{let ps='medium';try{ps=localStorage.psize||'medium'}catch(e){}ps={full:'large',large:'medium',small:'small'}[ps]||ps;psize(ps)}ppaint();
+ $('pcapbox').className='caption '+(F[d0.font]||'font-hand')}
+async function ploadMore(first){if(PLOADING||(PPOFF>0&&PP.length>=PPTOT))return;PLOADING=true;try{
+ const d=first||await api(`/api/p/${location.pathname.split('/')[2]}?offset=${PPOFF}&limit=48`);PPTOT=d.total;PP.push(...d.photos);PPOFF=PP.length}catch(e){}PLOADING=false}
 function ppaint(){if(!PP.length){$('pslide').style.display='none';$('pnoview').style.display='grid';$('pcap').textContent='Empty album.';return}$('pslide').style.display='';$('pnoview').style.display='none';const p=PP[PI];const el=$('pslide');el.src=p.src;el.className='slide fade';void el.offsetWidth;
  $('pcap').textContent=p.comment||'';$('pex').innerHTML=exPills(p.exif||{})+zoomHtml();applyCapZoom();$('ppBtn').textContent=PT?'⏸':'▶'}
-function pstep(d){PI=(PI+d+PP.length)%PP.length;ppaint()}
+async function pstep(d){if(!PP.length&&!PPTOT)return;let n=PI+d;if((n>=PP.length||n<0)&&PP.length<PPTOT){await ploadMore()}if(!PP.length)return;if(n>=PP.length)n=0;if(n<0)n=PP.length-1;PI=n;ppaint()}
 /* psize lives with ptoggle above (with size memory) */
 function ptoggle(){if(PT){clearInterval(PT);PT=null;$('ppBtn').textContent='▶'}else{PT=setInterval(()=>pstep(1),5000);$('ppBtn').textContent='⏸'}}
 const PSIZE_CLS={small:'small',medium:'large',large:'full'};

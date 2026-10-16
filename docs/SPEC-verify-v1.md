@@ -44,6 +44,8 @@ machine-checkable half so any host can be re-verified after upgrades.
 22. As an owner, I want access through Nginx Proxy Manager, so that the homelab stays on standard ports.
 23. As an owner, I want A− / A+ buttons scaling the comment plus tags, so that I can read comfortably.
 24. As an owner, I want to delete a photo from an album, so that mistakes and duplicates can go.
+25. As an owner, I want big albums to page quietly as I scroll, so that 100 photos feel instant.
+26. As an owner, I want small grid thumbnails, so that grids load fast on tablets.
 
 ## Implementation Decisions
 
