@@ -1,0 +1,77 @@
+<!-- PROTOTYPE - throwaway, not production. Button styles for ALL button types, ?variant=A|B|C -->
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Buttons — prototype (throwaway)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff8f0;--card:#fff;--ink:#2b2118;--mut:#8a7a6d;--acc:#ff5d5d;--line:#f0e2d3}
+[data-theme="dark"]{--bg:#171310;--card:#221c17;--ink:#f5e9dc;--mut:#a89888;--acc:#ff7a7a;--line:#3a2f26}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,sans-serif}
+header{display:flex;gap:10px;align-items:center;padding:12px 18px;background:var(--card);border-bottom:2px solid var(--line)}
+.logo{font-weight:800;font-size:22px}
+.badge{font-size:11px;background:var(--acc);color:#fff;padding:3px 8px;border-radius:99px}
+.wrap{max-width:900px;margin:0 auto;padding:18px}
+.variant{display:none}.variant.on{display:block}
+.row{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.card{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:16px;margin-top:14px;position:relative}
+.viewer{background:transparent;color:#fff;border-radius:18px;position:relative;border:3px solid var(--ink);margin-top:14px}
+.viewer img.slide{width:100%;height:220px;object-fit:contain;display:block}
+.vctrl{position:absolute;bottom:0;left:0;right:0;display:flex;gap:10px;justify-content:center;align-items:center;padding:12px;background:linear-gradient(transparent,rgba(0,0,0,.78));flex-wrap:wrap}
+.caption{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px;margin-top:12px}
+.exif{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.pill{font-size:14px;border:1px solid var(--line);border-radius:99px;padding:5px 12px;background:var(--bg)}
+.mut{color:var(--mut)}.state{margin:12px 0 80px;font-size:13px}
+/* A: current outline */
+[data-v="A"] .btn{border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:12px;padding:6px 10px;font-weight:700;cursor:pointer;min-height:40px}
+[data-v="A"] .btn.primary{background:var(--ink);color:var(--bg)}
+[data-v="A"] .cbtn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:99px;min-width:36px;min-height:36px;font-size:15px;cursor:pointer}
+[data-v="A"] .dockseg{display:flex;gap:4px;align-items:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);border-radius:99px;padding:4px 8px 4px 12px;color:#fff;font-size:13px}
+[data-v="A"] .dockseg button{background:transparent;border:0;color:#fff;font-weight:700;cursor:pointer;font-size:12px;padding:4px 6px;border-radius:99px;min-height:36px}
+[data-v="A"] .dockseg button.on{background:#fff;color:#000}
+[data-v="A"] .mini{border:0;background:transparent;color:var(--mut);font-size:13px;font-weight:800;padding:2px 6px;cursor:pointer;min-height:26px}
+[data-v="A"] .thumbx{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;border:2px solid var(--ink);background:var(--card);color:var(--ink);font-size:16px;font-weight:800;cursor:pointer}
+/* B: filled */
+[data-v="B"] .btn{border:0;background:var(--ink);color:var(--bg);border-radius:99px;padding:8px 18px;font-weight:700;cursor:pointer;min-height:40px}
+[data-v="B"] .btn.primary{background:linear-gradient(135deg,#FBBF24,#F97316,#EF4444);color:#fff}
+[data-v="B"] .cbtn{background:#fff;border:0;color:#000;border-radius:99px;min-width:40px;min-height:40px;font-size:16px;font-weight:800;cursor:pointer}
+[data-v="B"] .dockseg{display:flex;gap:4px;align-items:center;background:#fff;border-radius:99px;padding:4px 8px 4px 12px;color:#000;font-size:13px;font-weight:700}
+[data-v="B"] .dockseg button{background:transparent;border:0;color:#000;font-weight:700;cursor:pointer;font-size:12px;padding:6px 9px;border-radius:99px;min-height:36px}
+[data-v="B"] .dockseg button.on{background:#000;color:#fff}
+[data-v="B"] .mini{border:0;background:var(--line);color:var(--ink);font-size:13px;font-weight:800;padding:4px 10px;cursor:pointer;border-radius:99px;min-height:28px}
+[data-v="B"] .thumbx{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;border:0;background:var(--ink);color:var(--bg);font-size:16px;font-weight:800;cursor:pointer}
+/* C: text minimal */
+[data-v="C"] .btn{border:0;background:transparent;color:var(--ink);font-weight:700;cursor:pointer;padding:6px 4px;min-height:40px;text-decoration:underline;text-underline-offset:4px}
+[data-v="C"] .btn.primary{text-decoration:none;background:var(--acc);color:#fff;border-radius:8px;padding:6px 14px}
+[data-v="C"] .cbtn{background:transparent;border:1px solid #fff;color:#fff;border-radius:8px;min-width:36px;min-height:36px;font-size:15px;cursor:pointer}
+[data-v="C"] .dockseg{display:flex;gap:2px;align-items:center;color:#fff;font-size:13px}
+[data-v="C"] .dockseg button{background:transparent;border:0;border-bottom:2px solid transparent;color:#fff;font-weight:700;cursor:pointer;font-size:12px;padding:6px 4px;min-height:36px}
+[data-v="C"] .dockseg button.on{border-bottom-color:#fff}
+[data-v="C"] .mini{border:0;background:transparent;color:var(--mut);font-size:13px;font-weight:600;padding:2px 4px;cursor:pointer;min-height:26px;text-decoration:underline;text-underline-offset:3px}
+[data-v="C"] .thumbx{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;border:1px solid var(--mut);background:transparent;color:var(--mut);font-size:16px;cursor:pointer}
+#switcher{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);border-radius:99px;padding:8px;display:flex;gap:12px;align-items:center;z-index:99}
+#switcher button{background:transparent;border:1px solid currentColor;color:inherit;border-radius:99px;width:36px;height:36px;cursor:pointer;font-size:18px}
+</style>
+</head>
+<body data-v="A">
+<header><div class="logo">Memorees</div><div class="badge">PROTOTYPE throwaway</div><div style="flex:1"></div>
+<button class="btn" onclick="document.documentElement.dataset.theme=document.documentElement.dataset.theme==='light'?'dark':'light'">Light / Dark</button>
+<button class="btn">About</button></header>
+<div class="wrap">
+<p class="mut">Question: one button language for <b>every</b> button type? Flip with the bottom bar or ← → keys. State line names the active system.</p>
+<div class="row"><button class="btn primary">+ New album</button><button class="btn">Settings</button><button class="btn">Logout</button></div>
+<div class="viewer"><img class="slide" src="https://picsum.photos/seed/books/800/500">
+<div class="vctrl"><button class="cbtn">◀</button><button class="cbtn">▶</button><button class="cbtn">▶</button><span class="dockseg">Size <button>S</button><button class="on">M</button><button>L</button></span></div></div>
+<div class="caption">Salt in the air, best day ever!<div class="exif"><span class="pill">uploaded: 16 Oct 2026, 12:22</span><span class="pill">camera: Canon R6</span><span style="margin-left:auto"><button class="mini">A−</button> <button class="mini">A+</button></span></div></div>
+<div class="card"><button class="thumbx">×</button><b>Album card</b><div class="mut">12 photos • public link ready</div><p></p><button class="btn primary">Open</button></div>
+<p class="state" id="st"></p>
+</div>
+<div id="switcher"><button onclick="cycle(-1)">←</button><span id="vlabel"></span><button onclick="cycle(1)">→</button></div>
+<script>
+const names={A:'A (outline now)',B:'B (filled pills)',C:'C (text minimal)'},order=['A','B','C'];
+function cur(){return new URLSearchParams(location.search).get('variant')||'A'}
+function show(v){if(!order.includes(v))v='A';document.body.dataset.v=v;document.getElementById('vlabel').textContent=names[v];document.getElementById('st').textContent='State → system: '+v+'. All buttons restyle together; pick one.';try{const u=new URL(location);u.searchParams.set('variant',v);history.replaceState(null,'',u)}catch(e){}}
+function cycle(d){let i=order.indexOf(cur());show(order[(i+d+order.length)%order.length])}
+addEventListener('keydown',e=>{if(e.key==='ArrowRight')cycle(1);if(e.key==='ArrowLeft')cycle(-1)});
+show(cur());
+</script></body></html>
