@@ -53,6 +53,7 @@ check("brand mark in header", 'id="logoMark"' in html)
 check("brand favicon", 'rel="icon"' in html)
 check("no emoji album chrome", "🏖️" not in html and "New memory album 📸" not in html)
 check("no decorative emoji", all(e not in html for e in ["💛", "💾", "📷", "👋", "⚙️", "⬆", "✍", "🔗", "🌞", "✓"]))
+check("compact 32px buttons", "min-height:32px" in html)
 
-print(f"\n{33 - len(fails)}/33 passed")
+print(f"\n{34 - len(fails)}/34 passed")
 sys.exit(1 if fails else 0)

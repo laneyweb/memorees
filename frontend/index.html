@@ -11,7 +11,7 @@
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif}
 header{position:sticky;top:0;z-index:10;display:flex;gap:10px;align-items:center;padding:12px 18px;background:var(--card);border-bottom:2px solid var(--line);flex-wrap:wrap}
 .logo{font-weight:800;font-size:22px;color:var(--ink)}
-.btn{border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:12px;padding:6px 10px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;min-height:40px}
+.btn{border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:12px;padding:4px 8px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;min-height:32px}
 .btn:hover{transform:translateY(-2px);box-shadow:var(--sh)}.btn.primary{background:var(--ink);color:var(--bg)}.btn.on{background:var(--ink);color:var(--bg)}
 input,select,textarea{background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:10px;font-size:15px}
 a{color:var(--acc)}
@@ -34,15 +34,15 @@ header [data-tip]:hover::after,#s-albums [data-tip]:hover::after{top:calc(100% +
 .vctrl{position:absolute;bottom:0;left:0;right:0;display:flex;gap:10px;justify-content:center;align-items:center;padding:12px;background:linear-gradient(transparent,rgba(0,0,0,.78));flex-wrap:wrap}
 .viewer .vbar,.viewer .vctrl{transition:opacity .4s}
 .viewer.idle .vbar,.viewer.idle .vctrl{opacity:0;pointer-events:none}
-.cbtn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:99px;min-width:36px;min-height:36px;font-size:15px;cursor:pointer}
+.cbtn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:99px;min-width:32px;min-height:32px;font-size:14px;cursor:pointer}
 @media(pointer:coarse){.btn{min-height:44px}.cbtn{min-width:48px;min-height:48px;font-size:18px}.dockseg button{min-height:48px}.thumbx{width:34px;height:34px}}
 .cbtn:hover{background:rgba(255,255,255,.32);transform:scale(1.08)}
-.mini{border:0;background:transparent;color:var(--mut);font-size:13px;font-weight:800;padding:2px 6px;cursor:pointer;border-radius:8px;min-height:26px}
+.mini{border:0;background:transparent;color:var(--mut);font-size:13px;font-weight:800;padding:2px 6px;cursor:pointer;border-radius:8px;min-height:24px}
 .mini:hover{color:var(--ink);background:var(--line)}
-.thumbx{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;border:2px solid var(--ink);background:var(--card);color:var(--ink);font-size:16px;font-weight:800;cursor:pointer;line-height:1;z-index:2}
+.thumbx{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;border:2px solid var(--ink);background:var(--card);color:var(--ink);font-size:14px;font-weight:800;cursor:pointer;line-height:1;z-index:2}
 .thumbx.armed{background:var(--acc);color:#fff;border-color:var(--acc)}
 .dockseg{display:flex;gap:4px;align-items:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);border-radius:99px;padding:4px 8px 4px 12px;color:#fff;font-size:13px}
-.dockseg button{background:transparent;border:0;color:#fff;font-weight:700;cursor:pointer;font-size:12px;padding:4px 6px;border-radius:99px;min-height:36px}
+.dockseg button{background:transparent;border:0;color:#fff;font-weight:700;cursor:pointer;font-size:12px;padding:4px 6px;border-radius:99px;min-height:32px}
 .dockseg button.on{background:#fff;color:#000}
 .caption{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px;margin-top:12px;position:relative}
 #editBtn{position:absolute;top:8px;right:8px}
