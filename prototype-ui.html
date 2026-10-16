@@ -1,0 +1,156 @@
+<!-- PROTOTYPE - throwaway, not production. Three variants of Memorees UI, switchable via ?variant=A|B|C -->
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Memorees — UI Prototype (throwaway)</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Inter:wght@400;600;800&family=Lora:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff8f0;--card:#fff;--ink:#2b2118;--mut:#8a7a6d;--acc:#ff5d5d;--acc2:#ffb84d;--line:#f0e2d3;--sh:0 8px 30px rgba(0,0,0,.08)}
+[data-theme="dark"]{--bg:#171310;--card:#221c17;--ink:#f5e9dc;--mut:#a89888;--acc:#ff7a7a;--acc2:#ffcf6e;--line:#3a2f26;--sh:0 8px 30px rgba(0,0,0,.5)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;transition:background .3s,color .3s}
+header{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--card);border-bottom:2px solid var(--line)}
+.logo{font-weight:800;font-size:22px}.logo span{color:var(--acc)}
+.badge{font-size:11px;background:var(--acc);color:#fff;padding:3px 8px;border-radius:99px}
+.btn{border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:12px;padding:8px 14px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.btn:hover{transform:translateY(-2px) rotate(-.5deg);box-shadow:var(--sh)}
+.btn.primary{background:var(--ink);color:var(--bg)}
+.wrap{max-width:1100px;margin:0 auto;padding:20px}
+.variant{display:none}.variant.active{display:block;animation:pop .3s}
+@keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+.grid{display:grid;gap:16px}.g3{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+.card{background:var(--card);border:2px solid var(--line);border-radius:18px;overflow:hidden;transition:transform .18s,box-shadow .18s;position:relative}
+.card:hover{transform:translateY(-4px) scale(1.01);box-shadow:var(--sh)}
+.card img{width:100%;height:180px;object-fit:cover;display:block}
+.card .pad{padding:12px}
+.mut{color:var(--mut);font-size:13px}
+.polaroid{transform:rotate(-1.5deg)}.polaroid:nth-child(even){transform:rotate(1.5deg)}.polaroid:hover{transform:rotate(0) scale(1.03)}
+[data-tip]{position:relative}[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);background:var(--ink);color:var(--bg);font-size:12px;padding:6px 10px;border-radius:8px;white-space:nowrap;z-index:5}
+.viewer{background:#000;color:#fff;border-radius:18px;overflow:hidden;position:relative;border:3px solid var(--ink)}
+.viewer img.slide{width:100%;height:380px;object-fit:cover;display:block}
+.viewer img.fade{animation:fade 1s}.viewer img.slideL{animation:slideL .6s}.viewer img.zoom{animation:zoom 3s}
+@keyframes fade{from{opacity:0}to{opacity:1}}@keyframes slideL{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:none}}@keyframes zoom{from{transform:scale(1.12)}to{transform:scale(1)}}
+.vbar{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:linear-gradient(rgba(0,0,0,.6),transparent);font-size:14px}
+.vctrl{position:absolute;bottom:0;left:0;right:0;display:flex;align-items:center;gap:10px;justify-content:center;padding:12px;background:linear-gradient(transparent,rgba(0,0,0,.75))}
+.cbtn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:99px;width:42px;height:42px;font-size:18px;cursor:pointer;transition:transform .15s,background .15s}
+.cbtn:hover{transform:scale(1.12);background:rgba(255,255,255,.3)}
+.caption{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px;margin-top:12px}
+.exif{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.pill{font-size:11px;border:1px solid var(--line);border-radius:99px;padding:3px 9px;background:var(--bg)}
+.set{background:var(--card);border:2px dashed var(--acc);border-radius:16px;padding:16px;margin-top:18px}
+.font-hand{font-family:Caveat,cursive;font-size:22px}.font-sans{font-family:Inter,sans-serif}.font-serif{font-family:Lora,serif;font-size:18px}
+#switcher{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);border-radius:99px;padding:8px 8px;display:flex;gap:12px;align-items:center;box-shadow:var(--sh);z-index:99}
+#switcher button{background:transparent;border:1px solid currentColor;color:inherit;border-radius:99px;width:36px;height:36px;cursor:pointer;font-size:18px}
+.film{display:flex;gap:8px;overflow-x:auto;padding:10px 0}.film img{width:90px;height:60px;object-fit:cover;border-radius:10px;opacity:.6;cursor:pointer;border:2px solid transparent}.film img.on{opacity:1;border-color:var(--acc)}
+.kbd{font-size:11px;border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+/* tablet + view sizes (Variant A winner) */
+.viewer.small img.slide{height:220px}.viewer.large img.slide{height:380px}.viewer.full img.slide{height:70vh}
+.sizebar{display:flex;gap:8px;align-items:center;justify-content:center;margin-top:10px;flex-wrap:wrap}
+.sizebar .btn.on{background:var(--ink);color:var(--bg)}
+.comment{white-space:pre-line;line-height:1.5}
+@media(max-width:1024px){.wrap{padding:14px}.viewer img.slide{height:300px}.viewer.small img.slide{height:180px}.cbtn{width:48px;height:48px;font-size:20px}.g3{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}header{flex-wrap:wrap}}
+@media(max-width:700px){.g3{grid-template-columns:1fr 1fr}.viewer img.slide{height:240px}.card img{height:130px}}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">📸 Memo<span>rees</span></div><div class="badge">PROTOTYPE v0.1.0 • throwaway</div>
+<div style="flex:1"></div>
+<button class="btn" id="themeBtn" data-tip="Toggle light / dark">🌞 / 🌙 Theme</button>
+<button class="btn" onclick="alert('About Memorees\\nVersion: 0.1.0-prototype\\nBuild: '+new Date().toISOString()+'\\nCommit: proto-ui')">About</button>
+</header>
+<div class="wrap">
+
+<!-- VARIANT A -->
+<section class="variant" id="v-A">
+<h1>Variant A — Scrapbook Fun 🎨</h1>
+<p class="mut">Polaroids, stickers, handwritten captions. Question: does playful feel right for family memories?</p>
+<div class="grid g3">
+<div class="card polaroid"><img src="https://picsum.photos/seed/beach1/600/400"><div class="pad"><b class="font-hand">Beach day! 🏖️</b><div class="mut font-hand">12 photos • by Maya • public link 🔗</div></div></div>
+<div class="card polaroid"><img src="https://picsum.photos/seed/mtn2/600/400"><div class="pad"><b class="font-hand">Dolomites hike</b><div class="mut font-hand">34 photos • by Dad</div></div></div>
+<div class="card polaroid" data-tip="Click to open album"><img src="https://picsum.photos/seed/city3/600/400"><div class="pad"><b class="font-hand">+ New album</b><div class="mut">Tap to create ✏️</div></div></div>
+</div>
+<div class="viewer large" id="viewerA" style="margin-top:16px;touch-action:pan-y">
+<img id="slideA" class="slide fade" src="https://picsum.photos/seed/beach1/1000/600">
+<div class="vbar"><span>🏖️ Beach day! • by <b>Maya</b></span><span><span class="kbd" id="countA">1 / 3</span> <button class="cbtn" data-tip="Fullscreen overlay" onclick="fullA()">⛶</button></span></div>
+<div class="vctrl"><button class="cbtn" data-tip="Previous (swipe right works too)" onclick="stepA(-1)">◀</button><button class="cbtn" id="playA" data-tip="Pause / play autoplay" onclick="toggleA()">⏸</button><button class="cbtn" data-tip="Next" onclick="stepA(1)">▶</button>
+<select id="transA" data-tip="Transition effect" style="border-radius:99px;padding:8px"><option value="fade">Fade</option><option value="slideL">Slide</option><option value="zoom">Ken Burns</option><option value="">None</option></select></div>
+</div>
+<div class="sizebar"><span class="mut">View:</span><button class="btn" id="szS" onclick="sizeA('small')" data-tip="Small: grid-friendly preview">Small</button><button class="btn on" id="szL" onclick="sizeA('large')" data-tip="Large: default focus view">Large</button><button class="btn" id="szF" onclick="sizeA('full')" data-tip="Full: near-fullscreen theatre">Full</button><span class="mut">↔ swipe on tablet</span></div>
+<div class="caption font-hand"><div class="comment" id="capA">Salt in the air, sand in our shoes — best day ever!
+We stayed till sunset and Maya found three shells. 🐚 — Maya</div><div class="exif"><span class="pill">📷 Canon R6</span><span class="pill">ƒ/2.8 1/500 ISO100</span><span class="pill">📅 Taken Jul 4 2026</span><span class="pill">⬆ Uploaded Oct 10</span><span class="pill">📍 Malibu (GPS)</span></div></div>
+<div class="set"><b>⚙️ Settings (A):</b> <label><input type="checkbox" checked> Camera</label> <label><input type="checkbox" checked> Exposure</label> <label><input type="checkbox"> GPS</label> <label><input type="checkbox" checked> Taken date</label> <label><input type="checkbox" checked> Upload date</label> • Font: <label><input type="radio" name="fa" checked> Handwritten</label></div>
+</section>
+
+<!-- VARIANT B -->
+<section class="variant" id="v-B">
+<h1>Variant B — Clean Modern ✨</h1>
+<p class="mut">Sidebar + tidy grid, Inter font, subtle hover lifts. Question: does minimal scale to 100s of albums?</p>
+<div style="display:grid;grid-template-columns:220px 1fr;gap:16px">
+<aside class="card"><div class="pad"><b>My albums</b><br><br>🏖️ Beach day<br>⛰️ Hikes<br>🎂 Birthdays<br><br><button class="btn primary" data-tip="Create a new memory album">+ New album</button><hr><b>Settings</b><br><label class="mut"><input type="checkbox" checked> Show camera</label><br><label class="mut"><input type="checkbox" checked> Show taken date</label><br><label class="mut"><input type="checkbox" checked> Show upload date</label><br><label class="mut"><input type="checkbox"> Show GPS</label></div></aside>
+<div>
+<div class="grid g3">
+<div class="card" data-tip="Canon R6 • ƒ/2.8 • Jul 4 2026"><img src="https://picsum.photos/seed/beach1/600/400"><div class="pad"><b>Beach day!</b><div class="mut">Salt in the air… — Maya</div></div></div>
+<div class="card"><img src="https://picsum.photos/seed/mtn2/600/400"><div class="pad"><b>Summit</b><div class="mut">We made it! — Dad</div></div></div>
+<div class="card"><img src="https://picsum.photos/seed/city3/600/400"><div class="pad"><b>City lights</b><div class="mut">Night walk — Maya</div></div></div>
+</div>
+<div class="viewer" style="margin-top:14px"><img id="slideB" class="slide" src="https://picsum.photos/seed/mtn2/1000/600">
+<div class="vbar"><span><b>Dolomites hike</b> • by <b>Dad</b> • readonly 🔗 memorees.local/p/abc123</span><button class="cbtn" onclick="document.querySelector('#v-B .viewer').requestFullscreen()">⛶</button></div>
+<div class="vctrl"><button class="cbtn" onclick="stepB(-1)">◀</button><button class="cbtn" id="playB" onclick="toggleB()">⏸</button><button class="cbtn" onclick="stepB(1)">▶</button></div></div>
+<div class="caption font-sans"><b>Summit —</b> We made it just before sunset. <span class="mut">Sony A7IV • 24mm ƒ/8 1/250 ISO200 • Taken Sep 12 2026 • Uploaded Oct 11 2026</span></div>
+</div></div>
+</section>
+
+<!-- VARIANT C -->
+<section class="variant" id="v-C">
+<h1>Variant C — Cinematic 📽️</h1>
+<p class="mut">Viewer-first, filmstrip, serif captions. Question: should public link feel like a movie, not a gallery?</p>
+<div class="viewer"><img id="slideC" class="slide zoom" src="https://picsum.photos/seed/city3/1000/600">
+<div class="vbar"><span>🌃 <b>City lights</b> — a Memorees album by <b>Maya</b></span><span><select id="transC" style="border-radius:99px;padding:6px"><option>Fade</option><option>Slide</option><option selected>Ken Burns</option></select> <button class="cbtn" onclick="document.querySelector('#v-C .viewer').requestFullscreen()">⛶</button></span></div>
+<div class="vctrl"><button class="cbtn" onclick="stepC(-1)">◀ Prev</button><button class="cbtn" id="playC" onclick="toggleC()">⏸ Pause</button><button class="cbtn" onclick="stepC(1)">Next ▶</button></div>
+</div>
+<div class="film"><img class="on" src="https://picsum.photos/seed/city3/200/120" onclick="jumpC(0,this)"><img src="https://picsum.photos/seed/beach1/200/120" onclick="jumpC(1,this)"><img src="https://picsum.photos/seed/mtn2/200/120" onclick="jumpC(2,this)"></div>
+<div class="caption font-serif"><i>“The city hummed below us, and for a moment time stood still.”</i> — Maya<br><div class="exif"><span class="pill">Leica Q3 • 28mm ƒ/1.7</span><span class="pill">Taken Aug 30 2026</span><span class="pill">Uploaded Oct 12 2026</span></div></div>
+</section>
+
+<!-- FONT LAB -->
+<div class="set"><h3>✍️ Font lab — pick your caption style (applies to public slideshow)</h3>
+<p class="font-hand">Handwritten — “Salt in the air, best day ever!” (Caveat) — fun, personal, scrapbook.</p>
+<p class="font-sans"><b>Modern sans —</b> “Salt in the air, best day ever!” (Inter) — clean, readable, neutral.</p>
+<p class="font-serif"><i>Serif bookish — “Salt in the air, best day ever!” (Lora)</i> — warm, storybook, nostalgic.</p>
+<label><input type="radio" name="fontpick" checked> Handwritten</label> <label><input type="radio" name="fontpick"> Modern sans</label> <label><input type="radio" name="fontpick"> Serif bookish</label>
+<span class="mut">→ Setting saved per-album + user default. Viewer respects album choice.</span></div>
+
+<p class="mut" style="margin:60px 0 80px">About: Memorees prototype v0.1.0-prototype • Build local • <span class="kbd">?variant=A|B|C</span> shareable • State: in-memory only, no backend.</p>
+</div>
+
+<div id="switcher"><button onclick="cycle(-1)">←</button><span id="vlabel">A (Scrapbook)</span><button onclick="cycle(1)">→</button></div>
+<script>
+const names={A:'A (Scrapbook 🎨)',B:'B (Clean ✨)',C:'C (Cinematic 📽️)'};let order=['A','B','C'];
+function cur(){return new URLSearchParams(location.search).get('variant')||'A'}
+function show(v){order.includes(v)||(v='A');document.querySelectorAll('.variant').forEach(e=>e.classList.remove('active'));document.getElementById('v-'+v).classList.add('active');document.getElementById('vlabel').textContent=names[v];const u=new URL(location);u.searchParams.set('variant',v);history.replaceState(null,'',u)}
+function cycle(d){let i=order.indexOf(cur());i=(i+d+order.length)%order.length;show(order[i])}
+addEventListener('keydown',e=>{if(/INPUT|TEXTAREA/.test(document.activeElement.tagName))return;if(e.key==='ArrowRight')cycle(1);if(e.key==='ArrowLeft')cycle(-1)});
+show(cur());
+// theme
+const b=document.getElementById('themeBtn');b.onclick=()=>{const h=document.documentElement;h.dataset.theme=h.dataset.theme==='light'?'dark':'light'};
+document.querySelectorAll('input[name=fontpick]').forEach(r=>r.onchange=()=>{const v=document.querySelector('input[name=fontpick]:checked').parentElement.textContent.trim();document.querySelectorAll('.caption').forEach(c=>{c.className='caption '+(v.startsWith('Hand')?'font-hand':v.startsWith('Modern')?'font-sans':'font-serif')})});
+// slideshows (fake shared data) + per-image multiline comments (Q6 follow-up)
+const dataA=[
+{src:'https://picsum.photos/seed/beach1/1000/600',cap:'Salt in the air, sand in our shoes — best day ever!\nWe stayed till sunset and Maya found three shells. 🐚 — Maya'},
+{src:'https://picsum.photos/seed/mtn2/1000/600',cap:'Day 2: the climb was brutal but the view…\nHot chocolate at the hut tasted like victory.\n— Dad'},
+{src:'https://picsum.photos/seed/city3/1000/600',cap:'Night walk home through the old town.\nLights on, worries off. ✨ — Maya'}];
+const imgs=dataA.map(d=>d.src);
+let ia=0,ib=1,ic=2,ta=setInterval(()=>stepA(1),4000),tb=setInterval(()=>stepB(1),4000),tc=setInterval(()=>stepC(1),5000);
+function paint(id,src,trans){const el=document.getElementById(id);el.src=src;el.className='slide '+(trans||'fade');void el.offsetWidth}
+function stepA(d){ia=(ia+d+3)%3;paint('slideA',imgs[ia],document.getElementById('transA').value);document.getElementById('capA').textContent=dataA[ia].cap;document.getElementById('countA').textContent=(ia+1)+' / 3'}
+function sizeA(s){const v=document.getElementById('viewerA');v.className='viewer '+s;['szS','szL','szF'].forEach(id=>document.getElementById(id).classList.remove('on'));document.getElementById(s==='small'?'szS':s==='large'?'szL':'szF').classList.add('on')}
+function fullA(){const v=document.getElementById('viewerA');document.fullscreenElement?document.exitFullscreen():v.requestFullscreen()}
+// swipe for tablet
+(function(){let x0=0;const v=document.getElementById('viewerA');v.addEventListener('touchstart',e=>x0=e.touches[0].clientX,{passive:true});v.addEventListener('touchend',e=>{let dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>40)stepA(dx<0?1:-1)},{passive:true})})();
+function stepB(d){ib=(ib+d+3)%3;paint('slideB',imgs[ib],'slideL')}
+function stepC(d){ic=(ic+d+3)%3;paint('slideC',imgs[ic],'zoom')}
+function jumpC(i,el){ic=i;paint('slideC',imgs[i],'zoom');document.querySelectorAll('.film img').forEach(x=>x.classList.remove('on'));el.classList.add('on')}
+function toggleA(){const p=document.getElementById('playA');if(p.textContent==='⏸'){clearInterval(ta);p.textContent='▶'}else{ta=setInterval(()=>stepA(1),4000);p.textContent='⏸'}}
+function toggleB(){const p=document.getElementById('playB');if(p.textContent==='⏸'){clearInterval(tb);p.textContent='▶'}else{tb=setInterval(()=>stepB(1),4000);p.textContent='⏸'}}
+function toggleC(){const p=document.getElementById('playC');if(p.textContent.includes('⏸')){clearInterval(tc);p.textContent='▶ Play'}else{tc=setInterval(()=>stepC(1),5000);p.textContent='⏸ Pause'}}
+</script></body></html>
