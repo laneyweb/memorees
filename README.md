@@ -52,7 +52,7 @@ Add a Proxy Host for your domain pointing at `http://<docker-host-ip>:<HOST_PORT
 
 ## Using Memorees
 
-**Albums** — `+ New album` to create one. Open it, upload photos (drag a whole batch), and write each photo's story with Edit on the caption. The × on a thumbnail deletes that photo (tap twice to confirm).
+**Albums** — `+ New album` to create one. Open it, upload photos (drag a whole batch), and write each photo's story with Edit on the caption. The × on a thumbnail deletes that photo (tap twice to confirm). The × on an album card deletes the album: the dialog warns that its uploaded images are erased and its public link stops working, then one click does it.
 
 **Sharing** — the link at the top of each album page is the public slideshow. `New link` revokes the old one and mints a fresh link.
 

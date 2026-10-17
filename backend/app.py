@@ -354,10 +354,21 @@ async def update_album(aid: int, body: dict, session: str | None = Cookie(defaul
 def del_album(aid: int, session: str | None = Cookie(default=None)):
     u = need(me(session))
     c = db()
-    c.execute("DELETE FROM photos WHERE album_id IN (SELECT id FROM albums WHERE id=? AND owner=?)", (aid, u["id"]))
-    c.execute("DELETE FROM albums WHERE id=? AND owner=?", (aid, u["id"]))
+    a = c.execute("SELECT id FROM albums WHERE id=? AND owner=?", (aid, u["id"])).fetchone()
+    if not a:
+        c.close()
+        raise HTTPException(404, "album not found")
+    kept = c.execute("SELECT preview FROM photos WHERE album_id=?", (aid,)).fetchall()
+    c.execute("DELETE FROM photos WHERE album_id=?", (aid,))
+    c.execute("DELETE FROM albums WHERE id=?", (aid,))
     c.commit()
     c.close()
+    for r in kept:
+        stem = Path(r["preview"]).stem
+        for f in ORIG.glob(stem + ".*"):
+            f.unlink(missing_ok=True)
+        (PREV / r["preview"]).unlink(missing_ok=True)
+        (PREV / (stem + "_t.jpg")).unlink(missing_ok=True)
     return {"ok": True}
 
 

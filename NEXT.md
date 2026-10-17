@@ -1,9 +1,12 @@
 # Memorees — where we are (bookmark)
 
 ## Status
-- `main` at **0.2.1** (paged grids, 400px thumbs, size-persistence fix, no-store HTML).
-- Remote host `https://memorees.darrenlane.com` verified green: smoke **26/26**, all tickets 01–09 machine-green.
-- Local suites: `check_ui.py` 36/36, Playwright visual 3/3.
+- `main` at **0.3.0** (delete an album from the "Your albums" grid with a confirm
+  dialog; the route now erases the stored files instead of orphaning them).
+- Remote host `https://memorees.darrenlane.com` last verified green at 0.2.x: smoke
+  **26/26**, all tickets 01–09 machine-green.
+- Local suites: `check_ui.py` 41/41, Playwright visual 4/4. Ticket 10 is
+  machine-green locally; re-run remote smoke (now 27 checks) on the next deploy.
 
 ## Words we use
 `GLOSSARY.md` — Owner, Viewer, Memory Album, Public Link, View Size (small/medium/large), Comment Zoom, Thumbnail, Logo, Data Volume, Signup Lock.

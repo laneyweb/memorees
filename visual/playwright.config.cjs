@@ -15,6 +15,7 @@ module.exports = defineConfig({
   },
   webServer: {
     command: 'python -m uvicorn backend.app:app --port 8019',
+    url: 'http://127.0.0.1:8019/api/version',
     cwd: path.join(__dirname, '..'),
     env: {
       ...process.env,

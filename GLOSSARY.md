@@ -10,7 +10,7 @@ other words for the same thing.
 - **Photo**: one image in an album. Formats: JPG, PNG, HEIF.
 - **Comment**: the multiline text on one photo. Each photo has its own comment.
 - **Comment Zoom**: A− / A+ buttons scale the comment plus tags, remembered per browser.
-- **Delete**: removing a photo deletes its database row plus both stored files. No trash in V1.
+- **Delete**: removing a photo deletes its database row plus both stored files. Removing an album deletes its row, its photos, and the stored files of those photos. No trash in V1.
 - **Thumbnail**: the 400px grid image made per photo; the viewer always uses the full preview.
 - **Public Link**: the readonly URL of one album. Format: `/p/<id>`. No login is needed.
 - **Slideshow**: the viewer that shows the photos of one album, one at a time.

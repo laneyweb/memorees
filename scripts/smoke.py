@@ -167,6 +167,8 @@ def main():
         # cleanup
         s, _ = c._req("DELETE", f"/api/albums/{aid}")
         check("03 album delete (cleanup)", s == 200, f"http={s}")
+        s, _ = c._req("DELETE", f"/api/albums/{aid}")
+        check("03 album delete twice is 404", s == 404, f"http={s}")
         if link1:
             s, _ = c.get(f"/api/p/{link1}")
             check("03 link dead after delete", s == 404, f"http={s}")

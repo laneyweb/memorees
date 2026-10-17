@@ -12,7 +12,7 @@
 header{position:sticky;top:0;z-index:10;display:flex;gap:10px;align-items:center;padding:12px 18px;background:var(--card);border-bottom:2px solid var(--line);flex-wrap:wrap}
 .logo{font-weight:800;font-size:22px;color:var(--ink)}
 .btn{border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:12px;padding:4px 8px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;min-height:32px}
-.btn:hover{transform:translateY(-2px);box-shadow:var(--sh)}.btn.primary{background:var(--ink);color:var(--bg)}.btn.on{background:var(--ink);color:var(--bg)}
+.btn:hover{transform:translateY(-2px);box-shadow:var(--sh)}.btn.primary{background:var(--ink);color:var(--bg)}.btn.danger{background:var(--acc);color:#fff;border-color:var(--acc)}.btn.on{background:var(--ink);color:var(--bg)}
 input,select,textarea{background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:10px;font-size:15px}
 a{color:var(--acc)}
 .wrap{max-width:1000px;margin:0 auto;padding:18px}
@@ -23,6 +23,7 @@ a{color:var(--acc)}
 .polaroid{transform:rotate(-1.2deg)}.polaroid:nth-child(even){transform:rotate(1.2deg)}.polaroid:hover{transform:rotate(0) scale(1.02)}
 .pad{padding:12px}.mut{color:var(--mut);font-size:13px}
 [data-tip]{position:relative}[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);background:var(--ink);color:var(--bg);font-size:12px;padding:6px 10px;border-radius:8px;white-space:nowrap;max-width:calc(100vw - 32px);overflow:hidden;text-overflow:ellipsis;z-index:60;pointer-events:none}
+.card:has(.thumbx:hover)::after{content:none}
 header [data-tip]:hover::after,#s-albums [data-tip]:hover::after{top:calc(100% + 8px);bottom:auto}
 .viewer{background:transparent;color:#fff;border-radius:18px;overflow:hidden;position:relative;border:3px solid var(--ink);touch-action:pan-y}
 .viewer img.slide{width:100%;height:380px;object-fit:contain;display:block}
@@ -126,6 +127,10 @@ textarea{width:100%;min-height:90px}
 <input id="aname" placeholder="e.g. Beach day!" maxlength="80" style="width:100%" onkeydown="if(event.key==='Enter')submitAlbum();if(event.key==='Escape')closeAlbumModal()">
 <p></p><div class="row"><button class="btn primary" onclick="submitAlbum()">Create album</button><button class="btn" onclick="closeAlbumModal()">Cancel</button></div>
 <p class="mut" id="amsg"></p></div></div>
+<div class="modal" id="delModal" onclick="if(event.target===this)closeDelAlbum()"><div class="mbox">
+<h3 style="margin-top:0" id="dq"></h3>
+<p id="dmsg"></p>
+<div class="row"><button class="btn danger" onclick="confirmDelAlbum()">Delete album</button><button class="btn" onclick="closeDelAlbum()">Cancel</button></div></div></div>
 <section id="s-about" class="screen"><div class="card"><div class="pad">
 <h2>About Memorees</h2><p id="ver">…</p>
 <p><a href="https://github.com/laneyweb/memorees" target="_blank" rel="noopener">GitHub: laneyweb/memorees</a></p>
@@ -134,7 +139,7 @@ textarea{width:100%;min-height:90px}
 
 </div>
 <script>
-let ME=null,AID=null,PH=[],I=0,T=null,PP=[],PI=0,PT=null,PTOT=0,POFF=0,LOADING=false,PPTOT=0,PPOFF=0,PLOADING=false,PFONT='font-sans';
+let ME=null,AID=null,AL=[],DELID=null,PH=[],I=0,T=null,PP=[],PI=0,PT=null,PTOT=0,POFF=0,LOADING=false,PPTOT=0,PPOFF=0,PLOADING=false,PFONT='font-sans';
 const $=id=>document.getElementById(id);
 const F={hand:'font-hand',sans:'font-sans',serif:'font-serif'};
 function goHome(){if(location.pathname.indexOf('/p/')===0){location.href='/'}else if(ME){albumsTab()}else{show('auth')}}
@@ -152,12 +157,21 @@ async function doLogin(){try{await api('/api/login',{method:'POST',body:new URLS
 async function doReg(){try{await api('/api/register',{method:'POST',body:new URLSearchParams({username:$('u').value,password:$('p').value})});location.reload()}catch(e){$('authmsg').textContent='Signup failed: '+e.message}}
 async function doLogout(){await api('/api/logout',{method:'POST'});location.reload()}
 async function albumsTab(){show('albums');await loadAlbums()}
-async function loadAlbums(){const a=await api('/api/albums');$('albums').innerHTML=a.map(x=>`<div class="card polaroid" style="cursor:pointer" onclick="openAlbum(${x.id})" data-tip="${x.count} photo${x.count===1?'':'s'} • click to open">
+async function loadAlbums(){const a=await api('/api/albums');AL=a;$('albums').innerHTML=a.map(x=>`<div class="card polaroid" style="cursor:pointer" onclick="openAlbum(${x.id})" data-tip="${x.count} photo${x.count===1?'':'s'} • click to open">
  ${x.cover?`<img src="${x.cover}">`:`<div class="mut" style="height:180px;display:grid;place-items:center">No cover yet</div>`}
+ <button class="thumbx" onclick="event.stopPropagation();delAlbum(${x.id},${x.count})" data-tip="Delete album">×</button>
  <div class="pad"><b>${x.title}</b><div class="mut">${x.count} photo${x.count===1?'':'s'} • public link ready</div></div></div>`).join('')||'<p class="mut">No albums yet — hit + New album.</p>'}
 function openAlbumModal(){$('amsg').textContent='';$('aname').value='';$('albumModal').classList.add('on');setTimeout(()=>$('aname').focus(),50)}
 function closeAlbumModal(){$('albumModal').classList.remove('on')}
 async function submitAlbum(){const t=$('aname').value.trim();if(!t){$('amsg').textContent='Type a name first.';return}const r=await api('/api/albums',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:t})});closeAlbumModal();openAlbum(r.id)}
+function delAlbum(aid,count){const a=AL.find(x=>x.id===aid)||{title:'this album'};DELID=aid;
+ $('dq').textContent=`Delete "${a.title}"?`;
+ $('dmsg').textContent=count?`This deletes the album and its ${count} photo${count===1?'':'s'}. The uploaded files are erased from the server. There is no trash. The public link will stop working.`:'This album has no photos. There is no trash. The public link will stop working.';
+ $('delModal').classList.add('on');
+ const c=$('delModal').querySelector('button.btn:not(.danger)');if(c)setTimeout(()=>c.focus(),50)}
+function closeDelAlbum(){$('delModal').classList.remove('on')}
+addEventListener('keydown',e=>{if(e.key==='Escape')closeDelAlbum()});
+async function confirmDelAlbum(){const id=DELID;closeDelAlbum();DELID=null;try{await api(`/api/albums/${id}`,{method:'DELETE'})}catch(e){}loadAlbums()}
 async function openAlbum(id){AID=id;PH=[];POFF=0;PTOT=0;I=0;$('thumbs').innerHTML='';$('more').textContent='';
  const d0=await api(`/api/albums/${id}/photos?offset=0&limit=48`);
  $('atitle').textContent=d0.album.title;$('alink').textContent=d0.album.link;$('afont').value=d0.album.font;$('atrans').value=d0.album.transition;

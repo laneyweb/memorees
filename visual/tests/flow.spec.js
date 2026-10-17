@@ -7,6 +7,7 @@ const fs = require('fs');
 const SHOTS = path.join(__dirname, '..', '..', 'visual-shots');
 const LINKFILE = path.join(__dirname, '..', '..', '.scratch', 'visual-link.txt');
 let PUBLIC_PATH = null;
+let OWNER = null;
 function pubLink(){try{return fs.readFileSync(LINKFILE, 'utf8').trim()||PUBLIC_PATH}catch(e){return PUBLIC_PATH}}
 // Tests in one file share a worker and run in order.
 
@@ -21,7 +22,8 @@ test('owner flow on desktop', async ({ page }) => {
   await expect(page.locator('#s-auth.on')).toBeVisible();
   await page.screenshot({ path: `${SHOTS}/01-auth.png` });
 
-  await page.fill('#u', 'v' + Date.now().toString(36));
+  OWNER = 'v' + Date.now().toString(36);
+  await page.fill('#u', OWNER);
   await page.fill('#p', 'visualpass1');
   await page.click('text=Sign up');
   await expect(page.locator('#s-albums.on')).toBeVisible();
@@ -190,6 +192,63 @@ test('tablet touch flow', async ({ browser }) => {
   // Single-photo album: src unchanged but handler must not throw
   expect(typeof after).toBe('string');
   await page.screenshot({ path: `${SHOTS}/10-tablet-after-swipe.png` });
+  expect(errors).toEqual([]);
+  await ctx.close();
+});
+
+test('owner deletes an album from the grid', async ({ browser }) => {
+  const DATA = path.join(__dirname, '..', '..', '.scratch', 'visual-data');
+  const ORIG = path.join(DATA, 'originals');
+  const PREV = path.join(DATA, 'previews');
+  const ctx = await browser.newContext();
+  const page = await ctx.newPage();
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(String(e)));
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  await page.fill('#u', OWNER);
+  await page.fill('#p', 'visualpass1');
+  await page.click('button:has-text("Login")');
+  await expect(page.locator('#s-albums.on')).toBeVisible();
+  await expect(page.locator('#albums .card.polaroid')).toHaveCount(1);
+
+  const wasOrig = fs.readdirSync(ORIG).length;
+  const wasPrev = fs.readdirSync(PREV).length;
+
+  // The corner × opens the confirm modal and never the album
+  await page.click('#albums .thumbx');
+  await expect(page.locator('#s-albums.on')).toBeVisible();
+  await expect(page.locator('#delModal.on')).toBeVisible();
+  await expect(page.locator('#dq')).toContainText('Delete "Visual album"?');
+  await expect(page.locator('#dmsg')).toContainText('1 photo.');
+  await expect(page.locator('#dmsg')).toContainText('uploaded files are erased');
+  await expect(page.locator('#dmsg')).toContainText('public link will stop working');
+  await page.screenshot({ path: `${SHOTS}/11-delete-confirm.png` });
+
+  // Cancel changes nothing
+  await page.click('#delModal button:has-text("Cancel")');
+  await expect(page.locator('#delModal.on')).toHaveCount(0);
+  await expect(page.locator('#albums .card.polaroid')).toHaveCount(1);
+
+  // Escape changes nothing
+  await page.click('#albums .thumbx');
+  await expect(page.locator('#delModal.on')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#delModal.on')).toHaveCount(0);
+  await expect(page.locator('#albums .card.polaroid')).toHaveCount(1);
+
+  // Confirm removes the album, its photos, and the stored files
+  await page.click('#albums .thumbx');
+  await page.click('#delModal button:has-text("Delete album")');
+  await expect(page.locator('#delModal.on')).toHaveCount(0);
+  await expect(page.locator('#albums .card.polaroid')).toHaveCount(0);
+  await expect(page.locator('#albums')).toContainText('No albums yet');
+  expect(fs.readdirSync(ORIG).length).toBe(wasOrig - 1);
+  expect(fs.readdirSync(PREV).length).toBe(wasPrev - 2);
+
+  // And the public link is dead (the /p/ page is the app shell; the API is the gate)
+  const res = await page.request.get('/api' + pubLink());
+  expect(res.status()).toBe(404);
   expect(errors).toEqual([]);
   await ctx.close();
 });
