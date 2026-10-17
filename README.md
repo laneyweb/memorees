@@ -89,4 +89,6 @@ Add a Proxy Host for your domain pointing at `http://<docker-host-ip>:<HOST_PORT
 
 ## For developers
 
+Sample photos in the screenshots come from [Picsum](https://picsum.photos) (Unsplash License), so the repo stays free of anyone's real holiday.
+
 See [CONTRIBUTING.md](CONTRIBUTING.md) — architecture, test suites, spec/tickets, versioning.

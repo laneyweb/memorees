@@ -29,6 +29,7 @@ Layout: `backend/app.py` (API + pages), `frontend/index.html`,
 | Remote smoke | `python scripts/smoke.py --base <url> --user <u> --password <pw>` | 26 HTTP checks vs a live host |
 | Static UI | `python scripts/check_ui.py` | 38 markup/CSS invariants |
 | Visual | `cd visual && npx playwright test` | owner/public/tablet flows in real Chromium + review shots in `visual-shots/` |
+| README shots | `python scripts/stock_photos.py`, backend on :8019, then `node visual/readme-shots.mjs` | seeds a demo account with stock photos + captions, regenerates `docs/shots/` |
 
 Visual needs a local backend on :8019 (`DATA_DIR=.scratch/visual-data`).
 `prototype/<name>` branches hold throwaway UI demos, never merged to `main`.
