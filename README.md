@@ -58,6 +58,8 @@ Add a Proxy Host for your domain pointing at `http://<docker-host-ip>:<HOST_PORT
 
 **Viewing** — slideshows start paused. Prev/next/pause, Small/Medium/Large, fullscreen (with the story overlaid), light/dark theme, and A−/A+ text size — all remembered per browser. On touch screens, swipe to move and tap the viewer to show the controls.
 
+![Fullscreen viewer](docs/shots/viewer.png)
+
 **Settings** — choose which details appear beside photos (camera, location, taken/upload dates), your default caption font, and theme.
 
 ![Settings](docs/shots/settings.png)
@@ -86,5 +88,7 @@ Add a Proxy Host for your domain pointing at `http://<docker-host-ip>:<HOST_PORT
 ![Tablet view](docs/shots/tablet-public.png)
 
 ## For developers
+
+Sample photos in the screenshots come from [Picsum](https://picsum.photos) (Unsplash License), so the repo stays free of anyone's real holiday.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) — architecture, test suites, spec/tickets, versioning.

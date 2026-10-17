@@ -2,7 +2,7 @@ data/
 visual-shots/
 visual/node_modules/
 visual/test-results/
-.scratch/visual-data/
+.scratch/
 __pycache__/
 *.pyc
 .env

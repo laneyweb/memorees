@@ -152,9 +152,9 @@ async function doLogin(){try{await api('/api/login',{method:'POST',body:new URLS
 async function doReg(){try{await api('/api/register',{method:'POST',body:new URLSearchParams({username:$('u').value,password:$('p').value})});location.reload()}catch(e){$('authmsg').textContent='Signup failed: '+e.message}}
 async function doLogout(){await api('/api/logout',{method:'POST'});location.reload()}
 async function albumsTab(){show('albums');await loadAlbums()}
-async function loadAlbums(){const a=await api('/api/albums');$('albums').innerHTML=a.map(x=>`<div class="card polaroid" style="cursor:pointer" onclick="openAlbum(${x.id})" data-tip="${x.count} photos • click to open">
+async function loadAlbums(){const a=await api('/api/albums');$('albums').innerHTML=a.map(x=>`<div class="card polaroid" style="cursor:pointer" onclick="openAlbum(${x.id})" data-tip="${x.count} photo${x.count===1?'':'s'} • click to open">
  ${x.cover?`<img src="${x.cover}">`:`<div class="mut" style="height:180px;display:grid;place-items:center">No cover yet</div>`}
- <div class="pad"><b>${x.title}</b><div class="mut">${x.count} photos • public link ready</div></div></div>`).join('')||'<p class="mut">No albums yet — hit + New album.</p>'}
+ <div class="pad"><b>${x.title}</b><div class="mut">${x.count} photo${x.count===1?'':'s'} • public link ready</div></div></div>`).join('')||'<p class="mut">No albums yet — hit + New album.</p>'}
 function openAlbumModal(){$('amsg').textContent='';$('aname').value='';$('albumModal').classList.add('on');setTimeout(()=>$('aname').focus(),50)}
 function closeAlbumModal(){$('albumModal').classList.remove('on')}
 async function submitAlbum(){const t=$('aname').value.trim();if(!t){$('amsg').textContent='Type a name first.';return}const r=await api('/api/albums',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:t})});closeAlbumModal();openAlbum(r.id)}
