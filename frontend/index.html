@@ -3,6 +3,14 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Memorees</title>
+<script>
+/* resolve the theme before the first paint: 'system' follows the device, and
+   an anonymous visitor keeps the theme they picked on this browser */
+(function(){var h=document.documentElement,t=h.dataset.theme||'light';
+if(t==='system')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+if(h.dataset.anon==='1'){try{var s=localStorage.theme;if(s==='light'||s==='dark')t=s}catch(e){}}
+h.dataset.theme=t;})();
+</script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='4' y1='4' x2='28' y2='28' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23FBBF24'/%3E%3Cstop offset='0.5' stop-color='%23F97316'/%3E%3Cstop offset='1' stop-color='%23EF4444'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='7' y='4' width='18' height='22' rx='3.5' transform='rotate(-10 7 4)' fill='%23334155' opacity='0.6'/%3E%3Crect x='9' y='7' width='18' height='22' rx='3.5' transform='rotate(6 9 7)' fill='%230F172A' stroke='url(%23g)' stroke-width='2'/%3E%3Cpath d='M19 14C19 16.5 21.5 17 21.5 17C21.5 17 19 17.5 19 20C19 17.5 16.5 17 16.5 17C16.5 17 19 16.5 19 14Z' fill='%23FBBF24'/%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Inter:wght@400;600;800&family=Lora:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
 <style>
@@ -90,7 +98,7 @@ textarea{width:100%;min-height:90px}
 
 <section id="s-albums" class="screen"><div class="row">
 <h2 style="flex:1">Your albums</h2><button class="btn primary" onclick="openAlbumModal()" data-tip="Create a memory album">+ New album</button>
-<button class="btn" onclick="show('settings')" data-tip="EXIF, theme and font defaults">Settings</button><button class="btn" onclick="doLogout()">Logout</button></div>
+<button class="btn" onclick="loadSettings()" data-tip="EXIF, theme and font defaults">Settings</button><button class="btn" onclick="doLogout()">Logout</button></div>
 <div class="grid" id="albums"></div></section>
 
 <section id="s-album" class="screen"><div class="row">
@@ -100,7 +108,7 @@ textarea{width:100%;min-height:90px}
 <button class="btn primary" onclick="doUpload()">Upload</button></div>
 <div class="row"><span class="mut">Caption font:</span><select id="afont" onchange="saveAlbum()"><option value="hand">Handwritten</option><option value="sans">Modern sans</option><option value="serif">Serif bookish</option></select>
 <span class="mut">Transition:</span><select id="atrans" onchange="saveAlbum()"><option value="fade">Fade</option><option value="slide">Slide</option><option value="zoom">Ken Burns</option><option value="none">None</option></select>
-<button class="btn" onclick="regen()" data-tip="Revoke old link, issue a new one">New link</button></div>
+<button class="btn" onclick="regen()" data-tip="Revoke old link, issue a new one">New link</button><button class="btn" onclick="loadSettings()" data-tip="What your links show">Settings</button></div>
 <div class="viewer small" id="viewer" style="margin-top:12px"><img id="slide" class="slide fade" src="">
 <div id="noview" style="display:none;min-height:220px;place-items:center;text-align:center;padding:30px 16px;color:var(--ink);font-size:18px">No photos yet.<br><span style="font-size:14px;opacity:.8">Upload above to begin the slideshow.</span></div>
 <div class="vbar"><span id="vtitle"></span><span><button class="cbtn" onclick="fullV()" data-tip="Fullscreen">⛶</button></span></div>
@@ -119,10 +127,13 @@ textarea{width:100%;min-height:90px}
 <p class="mut">Readonly public link • Made with Memorees</p></section>
 
 <section id="s-settings" class="screen"><div class="card"><div class="pad">
-<h2>Settings</h2><p class="mut">Choose which data shows on the view page + defaults.</p>
+<div class="row" style="align-items:center"><button class="btn" onclick="show(PREV)">← Back</button><h2 style="margin:0">Settings</h2><span id="savedNote" class="mut" style="min-width:56px;transition:opacity .4s"></span></div>
+<p class="mut">What your public links show. Every change saves as you make it.</p>
 <div id="exbox"></div>
-<p></p><div class="row"><span>Default font</span><select id="sfont"><option value="hand">Handwritten</option><option value="sans">Modern sans</option><option value="serif">Serif bookish</option></select>
-<button class="btn primary" onclick="saveSettings()">Save</button><button class="btn" onclick="show('albums')">Done</button></div></div></div></section>
+<p></p><div class="row"><span>Default font <span class="mut">(new albums)</span></span><select id="sfont"><option value="hand">Handwritten</option><option value="sans">Modern sans</option><option value="serif">Serif bookish</option></select></div>
+<div class="row"><span>Theme</span><select id="stheme"><option value="light">Light</option><option value="dark">Dark</option><option value="system">Follow system</option></select></div>
+<p class="mut" style="margin-top:18px">Shown under a photo</p><div id="setprev" class="exif"></div>
+</div></div></section>
 
 <div class="modal" id="albumModal" onclick="if(event.target===this)closeAlbumModal()"><div class="mbox">
 <h3 style="margin-top:0">New memory album</h3>
@@ -150,12 +161,16 @@ let PREV='albums';
 function show(n){const cur=(document.querySelector('.screen.on')||{id:''}).id.replace('s-','');if(cur&&cur!=='about')PREV=cur;document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$('s-'+n).classList.add('on');applyCapZoom();if(n==='about')ver()}
 function exPills(e){return Object.entries(e).map(([k,v])=>`<span class="pill">${k}: ${v}</span>`).join('')}
 async function api(p,o={}){const r=await fetch(p,o);if(!r.ok)throw new Error(await r.text());return r.json()}
-async function boot(){document.documentElement.dataset.theme=localStorage.theme||'light';
+async function boot(){
  if(location.pathname.startsWith('/p/')){const id=location.pathname.split('/')[2];return pub(id)}
- try{const m=await api('/api/me');if(m.user){ME=m.user;nav();return albumsTab()}}catch(e){}
+ try{const m=await api('/api/me');if(m.user){ME=m.user;nav();applyTheme((m.settings&&m.settings.theme)||'light',false);return albumsTab()}}catch(e){}
  nav();show('auth')}
 function nav(){$('nav').innerHTML=ME?`<span class="mut">${ME}</span>`:''}
-$('themeBtn').onclick=()=>{const h=document.documentElement;h.dataset.theme=h.dataset.theme==='light'?'dark':'light';localStorage.theme=h.dataset.theme};
+function resolveTheme(p){return p==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):(p==='dark'?'dark':'light')}
+function applyTheme(pref,remember){const c=resolveTheme(pref);document.documentElement.dataset.theme=c;if(remember)try{localStorage.theme=c}catch(e){}}
+$('themeBtn').onclick=async()=>{const h=document.documentElement;const next=h.dataset.theme==='light'?'dark':'light';
+ applyTheme(next,!ME);
+ if(ME){try{await api('/api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({theme:next})})}catch(e){}}};
 async function doLogin(){try{await api('/api/login',{method:'POST',body:new URLSearchParams({username:$('u').value,password:$('p').value})});location.reload()}catch(e){$('authmsg').textContent='Login failed: '+e.message}}
 async function doReg(){try{await api('/api/register',{method:'POST',body:new URLSearchParams({username:$('u').value,password:$('p').value})});location.reload()}catch(e){$('authmsg').textContent='Signup failed: '+e.message}}
 async function doLogout(){await api('/api/logout',{method:'POST'});location.reload()}
@@ -210,9 +225,26 @@ function startEdit(){const p=PH[I];if(!p)return;const cap=$('cap');cap.innerHTML
 async function saveInline(){const v=$('cedit2').value;await api(`/api/photos/${PH[I].id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({comment:v})});PH[I].comment=v;paint()}
 async function saveAlbum(){await api(`/api/albums/${AID}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({font:$('afont').value,transition:$('atrans').value})});paint()}
 async function regen(){const r=await api(`/api/albums/${AID}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({regen:true})});$('alink').textContent=r.link;alert('New link: '+r.link)}
-async function loadSettings(){const s=await api('/api/settings');const L=[['show_camera','Camera'],['show_gps','GPS'],['show_taken','Taken date'],['show_uploaded','Upload date']];
- $('exbox').innerHTML=L.map(([k,l])=>`<label style="display:block;margin:6px 0"><input type="checkbox" data-k="${k}" ${s[k]?'checked':''}> ${l}</label>`).join('');$('sfont').value=s.font_default||'hand';show('settings')}
-async function saveSettings(){const b={};document.querySelectorAll('#exbox input').forEach(i=>b[i.dataset.k]=i.checked);b.font_default=$('sfont').value;await api('/api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});alert('Settings saved')}
+const EXMAP={show_taken:'Taken',show_uploaded:'Uploaded',show_camera:'Camera',show_gps:'Location'};
+let PREVEX={},PREVHAS=false,SETALB=null,SAVEDT=null;
+async function loadSettings(){const cur=(document.querySelector('.screen.on')||{id:''}).id;
+ SETALB=cur==='s-album'?AID:null;
+ const s=await api('/api/settings');
+ const L=[['show_camera','Camera'],['show_gps','Location (GPS)'],['show_taken','Taken date'],['show_uploaded','Upload date']];
+ $('exbox').innerHTML=L.map(([k,l])=>`<label style="display:block;margin:6px 0"><input type="checkbox" data-k="${k}" ${s[k]?'checked':''}> ${l}</label>`).join('');
+ $('sfont').value=s.font_default||'hand';$('stheme').value=s.theme||'light';show('settings');loadPreview()}
+async function saveSettings(){const b={};document.querySelectorAll('#exbox input').forEach(i=>b[i.dataset.k]=i.checked);
+ b.font_default=$('sfont').value;b.theme=$('stheme').value;
+ try{await api('/api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
+  applyTheme(b.theme,false);noteSaved();paintPreview()}catch(e){$('savedNote').textContent='Save failed'}}
+function noteSaved(){const n=$('savedNote');if(!n)return;n.textContent='Saved';n.style.opacity='1';clearTimeout(SAVEDT);SAVEDT=setTimeout(()=>{n.style.opacity='0'},1500)}
+async function loadPreview(){try{const d=await api('/api/preview'+(SETALB?`?album=${SETALB}`:''));PREVEX=d.exif||{};PREVHAS=!!d.has}catch(e){PREVEX={};PREVHAS=false}paintPreview()}
+function paintPreview(){const box=$('setprev');if(!box)return;
+ if(!PREVHAS){box.innerHTML='<span class="mut">No photos yet - upload one to see what will be shown.</span>';return}
+ const parts=Object.keys(EXMAP).filter(k=>{const c=document.querySelector('#exbox input[data-k="'+k+'"]');return c&&c.checked&&PREVEX[EXMAP[k]]})
+  .map(k=>`<span class="pill">${EXMAP[k]}: ${PREVEX[EXMAP[k]]}</span>`);
+ box.innerHTML=parts.length?parts.join(''):'<span class="mut">Nothing shown for this photo - all of its details are switched off.</span>'}
+$('s-settings').addEventListener('change',saveSettings);
 async function pub(id){show('public');PP=[];PPOFF=0;PPTOT=0;PI=0;const d0=await api(`/api/p/${id}?offset=0&limit=48`);
  await ploadMore(d0);
  $('ptitle').textContent=`${d0.album} • by ${d0.author}`;PFONT=F[d0.font]||'font-sans';{let ps='medium';try{ps=localStorage.psize||'medium'}catch(e){}psize(ps)}ppaint();

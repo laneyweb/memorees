@@ -123,6 +123,9 @@ async function seed() {
     if (a.hero) mainLink = new URL(full.album.link).pathname;
   }
   if (!mainLink) throw new Error(`no album flagged hero:true (expected "${HERO}")`);
+  // the examples are dark: for a signed-in user the theme is a server
+  // setting, so set it here rather than in localStorage
+  await api('/api/settings', { method: 'PUT', headers: json, body: JSON.stringify({ theme: 'dark' }) });
   console.log(`seeded ${ALBUMS.length} albums, ${ALBUMS.reduce((n, a) => n + a.photos.length, 0)} photos`);
   return mainLink;
 }

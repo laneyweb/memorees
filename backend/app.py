@@ -9,7 +9,7 @@ from datetime import datetime
 from pathlib import Path
 
 from fastapi import Cookie, Depends, FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 try:
@@ -193,16 +193,33 @@ def fmt_when(s: str) -> str:
     return d.strftime("%d %b %Y, %H:%M")
 
 
-def filter_exif(full: dict, settings: dict, taken_at: str, uploaded_at: str) -> dict:
+def label_exif(full: dict, taken_at: str, uploaded_at: str) -> dict:
+    """EXIF -> the labels and values a viewer would see, before any filtering."""
     f: dict = {}
-    if settings.get("show_uploaded"):
-        f["uploaded"] = fmt_when(uploaded_at)
-    if settings.get("show_taken") and taken_at:
-        f["taken"] = fmt_when(taken_at)
-    if settings.get("show_camera") and full.get("camera"):
-        f["camera"] = full["camera"]
-    if settings.get("show_gps") and full.get("gps"):
-        f["gps"] = full["gps"]
+    if taken_at:
+        f["Taken"] = fmt_when(taken_at)
+    if uploaded_at:
+        f["Uploaded"] = fmt_when(uploaded_at)
+    if full.get("camera"):
+        f["Camera"] = full["camera"]
+    if full.get("gps"):
+        f["Location"] = "attached"
+    return f
+
+
+def filter_exif(full: dict, settings: dict, taken_at: str, uploaded_at: str) -> dict:
+    """label_exif, minus whatever the owner has switched off. One filter for the
+    owner's own view and for the public link."""
+    lab = label_exif(full, taken_at, uploaded_at)
+    f: dict = {}
+    if settings.get("show_taken") and "Taken" in lab:
+        f["Taken"] = lab["Taken"]
+    if settings.get("show_uploaded") and "Uploaded" in lab:
+        f["Uploaded"] = lab["Uploaded"]
+    if settings.get("show_camera") and "Camera" in lab:
+        f["Camera"] = lab["Camera"]
+    if settings.get("show_gps") and "Location" in lab:
+        f["Location"] = lab["Location"]
     return f
 
 
@@ -290,6 +307,26 @@ async def put_set(body: dict, session: str | None = Cookie(default=None)):
     return cur
 
 
+@app.get("/api/preview")
+def preview(album: int | None = None, session: str | None = Cookie(default=None)):
+    """Unfiltered labels for one real photo, so the settings screen can show
+    what a photo will look like whatever the owner has switched on or off."""
+    u = need(me(session))
+    c = db()
+    if album:
+        row = c.execute("SELECT p.* FROM photos p JOIN albums a ON a.id=p.album_id "
+                        "WHERE p.album_id=? AND a.owner=? ORDER BY p.pos,p.rowid LIMIT 1",
+                        (album, u["id"])).fetchone()
+    else:
+        row = c.execute("SELECT p.* FROM photos p JOIN albums a ON a.id=p.album_id "
+                        "WHERE a.owner=? ORDER BY p.rowid DESC LIMIT 1", (u["id"],)).fetchone()
+    c.close()
+    if not row:
+        return {"has": False, "exif": {}}
+    return {"has": True,
+            "exif": label_exif(json.loads(row["exif"] or "{}"), row["taken_at"], row["uploaded_at"])}
+
+
 @app.get("/api/albums")
 def albums(session: str | None = Cookie(default=None)):
     u = need(me(session))
@@ -321,8 +358,11 @@ async def create_album(body: dict, session: str | None = Cookie(default=None)):
     title = (body.get("title") or "Untitled").strip()[:80]
     c = db()
     pu = uuid.uuid4().hex
-    cur = c.execute("INSERT INTO albums(owner,title,public_uuid,created) VALUES(?,?,?,?)",
-                    (u["id"], title, pu, datetime.utcnow().isoformat()))
+    # a new album starts on the owner's default caption font
+    fd = get_settings(u).get("font_default")
+    font = fd if fd in ("hand", "sans", "serif") else "hand"
+    cur = c.execute("INSERT INTO albums(owner,title,font,public_uuid,created) VALUES(?,?,?,?,?)",
+                    (u["id"], title, font, pu, datetime.utcnow().isoformat()))
     c.commit()
     aid = cur.lastrowid
     c.close()
@@ -491,7 +531,7 @@ def public(puuid: str, offset: int = 0, limit: int = 48):
     total = c.execute("SELECT COUNT(*) n FROM photos WHERE album_id=?", (a["id"],)).fetchone()["n"]
     c.close()
     return {"album": a["title"], "author": a["username"], "font": a["font"],
-            "transition": a["transition"],
+            "transition": a["transition"], "theme": st.get("theme") or "light",
             "photos": [{"src": f"/previews/{r['preview']}", "comment": r["comment"],
                         "exif": filter_exif(json.loads(r["exif"] or "{}"), st, r["taken_at"], r["uploaded_at"])}
                        for r in rows], "total": total}
@@ -510,11 +550,41 @@ async def cache_headers(req, call_next):
     return resp
 
 
+def render_front(theme: str, anon: bool) -> HTMLResponse:
+    """Serve the page with the theme already on <html>, so a dark album never
+    flashes white. 'system' is resolved by the client before first paint."""
+    html = FRONT.read_text(encoding="utf-8")
+    html = html.replace('<html lang="en" data-theme="light">',
+                        f'<html lang="en" data-theme="{theme}" data-anon="{1 if anon else 0}">', 1)
+    return HTMLResponse(html, headers=NOCACHE)
+
+
+def user_theme(session: str | None) -> tuple[str, bool]:
+    """(theme, anonymous) for whoever is behind this request."""
+    u = me(session)
+    if not u:
+        return "light", True
+    t = get_settings(u).get("theme") or "light"
+    return (t if t in ("light", "dark", "system") else "light"), False
+
+
 @app.get("/", response_class=HTMLResponse)
-def index():
-    return FileResponse(FRONT, media_type="text/html", headers=NOCACHE)
+def index(session: str | None = Cookie(default=None)):
+    theme, anon = user_theme(session)
+    return render_front(theme, anon)
 
 
 @app.get("/p/{puuid}", response_class=HTMLResponse)
-def pub_page(puuid: str):
-    return FileResponse(FRONT, media_type="text/html", headers=NOCACHE)
+def pub_page(puuid: str, session: str | None = Cookie(default=None)):
+    c = db()
+    a = c.execute("SELECT u.settings FROM albums a JOIN users u ON u.id=a.owner "
+                  "WHERE a.public_uuid=?", (puuid,)).fetchone()
+    c.close()
+    theme = "light"
+    if a:
+        try:
+            t = (json.loads(a["settings"] or "{}") or {}).get("theme") or "light"
+            theme = t if t in ("light", "dark", "system") else "light"
+        except Exception:
+            pass
+    return render_front(theme, not me(session))

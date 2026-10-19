@@ -53,8 +53,9 @@ test('owner flow on desktop', async ({ page }) => {
   await page.click('#cap button:has-text("Save")');
   await expect(page.locator('#thumbs img')).toHaveAttribute('src', /_t\.jpg$/);
   const ex = await page.locator('#ex').textContent();
-  expect(ex).toMatch(/uploaded: \d{2} \w{3} \d{4}/);
-  expect(ex).toMatch(/uploaded: \d{2} \w{3} \d{4}/);
+  // the label is title-cased now (it used to read "uploaded:")
+  expect(ex).toMatch(/Uploaded: \d{2} \w{3} \d{4}/);
+  expect(ex).not.toMatch(/\buploaded:/);
   // Cancel abandons the draft
   await page.click('#editBtn');
   await page.fill('#cedit2', 'abandoned draft');

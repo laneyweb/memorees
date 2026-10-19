@@ -152,7 +152,10 @@ def main():
             check("05 public loads anon-shape", s == 200 and pub.get("album") == "smoke-probe", f"{b[:120]}")
             p0 = (pub.get("photos") or [{}])[0]
             check("05 public comment present", p0.get("comment") == comment, f"{p0.get('comment')!r}"[:120])
-            check("05 gps hidden by default", "gps" not in (p0.get("exif") or {}), f"{p0.get('exif')}")
+            check("05 gps hidden by default", not ({"gps", "Location"} & set(p0.get("exif") or {})), f"{p0.get('exif')}")
+            ex5 = p0.get("exif") or {}
+            check("05 exif labels title-cased", all(k[:1].isupper() for k in ex5), f"{ex5}")
+            check("05 public carries theme", pub.get("theme") in ("light", "dark", "system"), f"{pub.get('theme')}")
         except Exception as e:
             check("05 public loads anon-shape", False, f"http={s} {e}")
 

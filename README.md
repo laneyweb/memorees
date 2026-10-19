@@ -8,8 +8,9 @@ Memorees keeps your memories close — memory albums with photos and the stories
 
 - **Memory albums** — as many as you like, each with its own caption font (handwritten, modern, bookish) and slideshow transition.
 - **Photos plus stories** — JPG, PNG and HEIF uploads, each photo with its own multiline comment.
-- **Camera context** — camera, taken date and upload date shown beside each photo. Location stays hidden unless you opt in.
-- **Public links** — every album gets a long, unguessable link. Family watch a slideshow with prev/next/pause, three sizes, fullscreen and light/dark theme. No account needed.
+- **Camera context** — camera, taken date and upload date shown beside each photo. You choose which of them appear; location stays hidden unless you switch it on.
+- **Public links** — every album gets a long, unguessable link. Family watch a slideshow with prev/next/pause, three sizes, fullscreen and fullscreen captions. No account needed.
+- **Your look, your links** — light, dark, or follow the device. Your public links open in the theme you picked; visitors can switch for themselves.
 - **Tablet friendly** — swipe navigation and touch-sized controls.
 - **Private by default** — local username/password accounts, nothing leaves your server.
 
@@ -56,11 +57,11 @@ Add a Proxy Host for your domain pointing at `http://<docker-host-ip>:<HOST_PORT
 
 **Sharing** — the link at the top of each album page is the public slideshow. `New link` revokes the old one and mints a fresh link.
 
-**Viewing** — slideshows start paused. Prev/next/pause, Small/Medium/Large, fullscreen (with the story overlaid), light/dark theme, and A−/A+ text size — all remembered per browser. On touch screens, swipe to move and tap the viewer to show the controls.
+**Viewing** — slideshows start paused. Prev/next/pause, Small/Medium/Large, fullscreen (with the story overlaid), light/dark theme, and A−/A+ text size. The theme and text size are remembered per browser; on touch screens, swipe to move and tap the viewer to show the controls.
 
 ![Fullscreen viewer](docs/shots/viewer.png)
 
-**Settings** — choose which details appear beside photos (camera, location, taken/upload dates), your default caption font, and theme.
+**Settings** — reached from your albums page or from inside an album. Tick the details you want beside each photo (camera, location, taken/upload dates), pick the theme for your public links, and set the caption font new albums start with. Every change saves as you make it, and a live sample shows what a photo will look like.
 
 ![Settings](docs/shots/settings.png)
 
