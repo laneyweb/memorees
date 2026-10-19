@@ -26,6 +26,14 @@ check("cards do not clip (overflow visible)", bool(m) and "overflow:visible" in 
 check("card images keep rounded tops", "border-radius:15px 15px 0 0" in html)
 check("tooltip rule present", "[data-tip]:hover::after" in html)
 check("header tooltips open downward", "header [data-tip]:hover::after" in html)
+# controls pinned to a right edge must anchor the tooltip inward, else it
+# centres on the button and runs off screen on the right-most card
+check("right-edge tooltips anchor inward",
+      ".thumbx[data-tip]:hover::after" in html
+      and "#editBtn[data-tip]:hover::after" in html
+      and ".vbar .cbtn[data-tip]:hover::after" in html
+      and ".exif .mini[data-tip]:hover::after" in html
+      and "left:auto;right:0;transform:none" in html)
 check("empty viewer placeholder (owner)", 'id="noview"' in html)
 check("empty viewer placeholder (public)", 'id="pnoview"' in html)
 check("uniform row rhythm", ".wrap .row{margin-bottom:16px}" in html)

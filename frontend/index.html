@@ -25,6 +25,9 @@ a{color:var(--acc)}
 [data-tip]{position:relative}[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);background:var(--ink);color:var(--bg);font-size:12px;padding:6px 10px;border-radius:8px;white-space:nowrap;max-width:calc(100vw - 32px);overflow:hidden;text-overflow:ellipsis;z-index:60;pointer-events:none}
 .card:has(.thumbx:hover)::after{content:none}
 header [data-tip]:hover::after,#s-albums [data-tip]:hover::after{top:calc(100% + 8px);bottom:auto}
+/* controls pinned to a right edge: anchor the tooltip to the button's right edge
+   so it extends inward instead of hanging half off the card and off-screen */
+.thumbx[data-tip]:hover::after,.vbar .cbtn[data-tip]:hover::after,#editBtn[data-tip]:hover::after,.exif .mini[data-tip]:hover::after{left:auto;right:0;transform:none}
 .viewer{background:transparent;color:#fff;border-radius:18px;overflow:hidden;position:relative;border:3px solid var(--ink);touch-action:pan-y}
 .viewer img.slide{width:100%;height:380px;object-fit:contain;display:block}
 .viewer.small img.slide{height:220px}.viewer.full img.slide{height:70vh}
